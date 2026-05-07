@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>inhabit. realty - Agent Onboarding & Exit Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --prussian:   #1A3044;
+    --prussian2:  #122233;
+    --onyx:       #1A1A1A;
+    --canvas:     #F8F6F2;
+    --canvas2:    #EDE9E2;
+    --gold:       #8A6500;
+    --gold-light: #C4922A;
+    --gold-pale:  #E8D5A8;
+    --mist:       #D8D2C8;
+    --ash:        #6A6460;
+    --white:      #FFFFFF;
+    --green:      #1e5c35;
+    --red:        #7a1f1f;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; font-weight: 300; background: var(--canvas); color: var(--onyx); min-height: 100vh; }
+
+  .topbar { background: var(--prussian); padding: 0 48px; height: 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(196,146,42,0.25); }
+  .topbar-logo { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600; color: var(--canvas); }
+  .topbar-logo span { color: var(--gold-light); font-weight: 400; font-style: italic; }
+  .topbar-doc { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(248,246,242,0.45); }
+
+  .page { max-width: 840px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  .doc-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 24px; margin-bottom: 40px; padding-bottom: 28px; border-bottom: 2px solid var(--prussian); }
+  .doc-eyebrow { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: 6px; }
+  .doc-title { font-family: 'Playfair Display', serif; font-size: 1.9rem; font-weight: 400; color: var(--prussian); line-height: 1.15; }
+  .doc-meta { display: flex; flex-direction: column; gap: 8px; text-align: right; }
+  .meta-row { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .meta-label { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ash); }
+  .meta-input { border: none; border-bottom: 1px solid var(--mist); background: transparent; font-family: 'DM Sans'; font-size: 12px; color: var(--onyx); width: 160px; padding: 2px 4px; outline: none; }
+  .meta-input:focus { border-bottom-color: var(--prussian); }
+
+  .toggle-wrap { display: flex; gap: 0; margin-bottom: 28px; border: 1px solid var(--mist); width: fit-content; border-radius: 3px; overflow: hidden; }
+  .toggle-btn { padding: 10px 24px; border: none; background: transparent; font-family: 'DM Sans'; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; color: var(--ash); transition: all 0.2s; }
+  .toggle-btn.active { background: var(--prussian); color: var(--canvas); }
+
+  .progress-wrap { margin-bottom: 36px; }
+  .progress-top { display: flex; justify-content: space-between; font-size: 11px; color: var(--ash); margin-bottom: 6px; }
+  .progress-bar { height: 3px; background: var(--mist); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); border-radius: 2px; transition: width 0.35s ease; }
+
+  .cl-section { margin-bottom: 32px; }
+  .cl-section-head { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; margin-bottom: 4px; border-bottom: 1px solid var(--mist); }
+  .cl-section-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 600; color: var(--prussian); flex: 1; }
+  .badge { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 10px; border-radius: 12px; font-weight: 500; }
+  .badge-law { background: #f5e0e0; color: var(--red); }
+  .badge-req { background: var(--gold-pale); color: var(--gold); }
+  .badge-rec { background: #d8eee3; color: var(--green); }
+
+  .cl-item { display: flex; align-items: flex-start; gap: 12px; padding: 11px 10px; border-bottom: 1px solid rgba(0,0,0,0.05); cursor: pointer; border-radius: 3px; transition: background 0.15s; }
+  .cl-item:hover { background: rgba(26,48,68,0.04); }
+  .cl-item.done { opacity: 0.45; }
+  .cl-item.done .cl-text { text-decoration: line-through; }
+  .cl-check { width: 18px; height: 18px; flex-shrink: 0; border: 1.5px solid var(--mist); border-radius: 2px; background: var(--white); display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.18s; font-size: 11px; }
+  .cl-item.done .cl-check { background: var(--green); border-color: var(--green); color: white; }
+  .cl-body { flex: 1; }
+  .cl-text { font-size: 13px; line-height: 1.45; color: var(--onyx); }
+  .cl-note { font-size: 11.5px; color: var(--ash); line-height: 1.6; margin-top: 3px; }
+  .tag { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 7px; border-radius: 10px; margin-left: 6px; vertical-align: middle; font-weight: 500; }
+  .tag-law { background: #f5e0e0; color: var(--red); }
+  .tag-doc { background: #dde8f5; color: #1a3080; }
+  .tag-hr  { background: var(--gold-pale); color: var(--gold); }
+  .tag-tech { background: #ece0f5; color: #4a1a80; }
+
+  .sig-block { margin-top: 36px; border: 1px solid var(--mist); background: var(--white); padding: 28px 32px; }
+  .sig-title { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ash); margin-bottom: 20px; font-weight: 500; }
+  .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .sig-line { border-bottom: 1px solid var(--onyx); margin-top: 40px; }
+  .sig-label { font-size: 11px; color: var(--ash); margin-top: 6px; }
+
+  .print-btn { position: fixed; bottom: 24px; right: 24px; background: var(--prussian); color: var(--canvas); border: none; padding: 11px 22px; font-family: 'DM Sans'; font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; border-radius: 2px; box-shadow: 0 4px 20px rgba(26,48,68,0.25); transition: background 0.2s; }
+  .print-btn:hover { background: var(--prussian2); }
+  @media print { .topbar, .toggle-wrap, .progress-wrap, .print-btn { display: none; } body { background: white; } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">inhabit<span>.</span> realty</div>
+  <div class="topbar-doc">Agent Onboarding &amp; Exit Checklist</div>
+</div>
+
+<div class="page">
+
+  <div class="doc-header">
+    <div>
+      <div class="doc-eyebrow">inhabit. realty</div>
+      <div class="doc-title">Agent Onboarding &amp;<br>Exit Checklist</div>
+    </div>
+    <div class="doc-meta">
+      <div class="meta-row"><span class="meta-label">Agent</span><input class="meta-input" type="text" placeholder="Full Name"></div>
+      <div class="meta-row"><span class="meta-label">License #</span><input class="meta-input" type="text" placeholder="State License #"></div>
+      <div class="meta-row"><span class="meta-label">Date</span><input class="meta-input" type="text" placeholder="MM / DD / YYYY"></div>
+      <div class="meta-row"><span class="meta-label">Broker</span><input class="meta-input" type="text" placeholder="Name"></div>
+    </div>
+  </div>
+
+  <div class="toggle-wrap">
+    <button class="toggle-btn active" onclick="setMode('onboard',this)">Onboarding</button>
+    <button class="toggle-btn" onclick="setMode('exit',this)">Exit / Offboarding</button>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-top"><span>Completion Progress</span><span id="prog-txt">0 of 0 items</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <div id="onboard">
+
+    <div class="cl-section">
+      <div class="cl-section-head"><span class="cl-section-title">Legal &amp; Compliance</span><span class="badge badge-law">Required by Law</span></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Independent Contractor Agreement (ICA) signed by agent and broker <span class="tag tag-law">Legal</span></div><div class="cl-note">Establishes 1099 contractor status. Must be executed BEFORE the agent acts on behalf of the brokerage.</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Commission structure documented in writing and signed <span class="tag tag-law">Legal</span></div><div class="cl-note">All splits, transaction fees, desk fees, and payment schedule in writing.</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">State real estate license verified - active and in good standing <span class="tag tag-law">Legal</span></div><div class="cl-note">Confirm license is current and not suspended.</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">License transfer to inhabit. realty filed with state board <span class="tag tag-law">Legal</span></div><div class="cl-note">Agent cannot legally represent clients until license is officially transferred.</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Errors &amp; Omissions (E&amp;O) Insurance confirmed / enrolled <span class="tag tag-law">Legal</span></div><div class="cl-note">Broker-level E&amp;O must be active. Confirm zero coverage gap.</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">W-9 form collected (for 1099 independent contractors) <span class="tag tag-law">Legal</span> <span class="tag tag-doc">IRS</span></div><div class="cl-note">Required for all non-employee contractors per IRS regulations.</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Fair Housing Act compliance acknowledgment signed <span class="tag tag-law">Legal</span></div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">NAR Code of Ethics compliance verified / training cycle confirmed <span class="tag tag-law">Legal</span></div><div class="cl-note">REALTORS must complete NAR Code of Ethics training every 3 years.</div></div></div>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-section-head"><span class="cl-section-title">HR &amp; Administration</span><span class="badge badge-req">Required</span></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Formal Offer Letter issued and signed by both parties <span class="tag tag-doc">Doc</span></div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">HR file created with all signed documents filed <span class="tag tag-hr">HR</span></div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Expectations Conversation conducted and signed <span class="tag tag-hr">HR</span></div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Emergency contact information collected</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Direct deposit / payment routing information collected</div></div></div>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-section-head"><span class="cl-section-title">MLS &amp; Association Memberships</span><span class="badge badge-req">Required</span></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">MLS membership transferred / activated under inhabit. realty</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Local REALTOR Association membership transferred or established</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Lockbox / Supra key access activated</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Showing service accounts set up (ShowingTime / CSS)</div></div></div>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-section-head"><span class="cl-section-title">Technology &amp; Platform Setup</span><span class="badge badge-req">Required</span></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Lofty CRM account created and agent onboarded <span class="tag tag-tech">Tech</span></div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">IDX agent website configured and launched <span class="tag tag-tech">Tech</span></div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Brokerage email address created and inbox confirmed</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Transaction management system access granted</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">DocuSign / e-signature account linked</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Marketing asset library access granted (templates, logos, brand kit)</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Business card order placed / digital card setup</div></div></div>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-section-head"><span class="cl-section-title">Orientation &amp; Coaching Setup</span><span class="badge badge-req">Required</span></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Motivation Meeting completed (1-hour, in person preferred)</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Orientation Meeting scheduled and completed</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">30/60/90 Day Plan reviewed and signed by agent</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">First coaching call scheduled</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Mentor / shadow agent assigned (new agents)</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Script practice schedule established</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Agent added to team communication channels</div></div></div>
+    </div>
+
+  </div>
+
+  <div id="exit" style="display:none">
+
+    <div class="cl-section">
+      <div class="cl-section-head"><span class="cl-section-title">Legal &amp; Compliance - Exit</span><span class="badge badge-law">Required by Law</span></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">License transfer-out filed with state board <span class="tag tag-law">Legal</span></div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">All pending transactions reviewed - responsible party confirmed post-departure <span class="tag tag-law">Legal</span></div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Final commission disbursements calculated and issued <span class="tag tag-law">Legal</span></div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">ICA termination notice issued per agreement terms <span class="tag tag-law">Legal</span></div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Non-solicitation / non-compete provisions reviewed and acknowledged (if applicable)</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">1099 filing obligations confirmed for the tax year</div></div></div>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-section-head"><span class="cl-section-title">Systems &amp; Access Revocation</span><span class="badge badge-req">Required</span></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Brokerage email deactivated / forwarding set</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Lofty CRM access removed; lead data disposition documented</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">IDX website deactivated or transferred</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Transaction management system access removed</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">DocuSign / e-signature access removed</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Marketing / brand asset access revoked</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Lockbox / Supra key access deactivated</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">MLS access transferred or released</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Agent removed from all team communication channels</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">inhabit. signage / business cards returned or destroyed</div></div></div>
+    </div>
+
+    <div class="cl-section">
+      <div class="cl-section-head"><span class="cl-section-title">Exit Interview &amp; Retention Intel</span><span class="badge badge-rec">Recommended</span></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Exit interview conducted (30-min with broker)</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Feedback logged in internal retention database</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Leave-on-good-terms letter / referral agreement offered (if appropriate)</div></div></div>
+      <div class="cl-item" onclick="toggleItem(this)"><div class="cl-check"></div><div class="cl-body"><div class="cl-text">Agent added to alumni / referral network (if appropriate)</div></div></div>
+    </div>
+
+  </div>
+
+  <div class="sig-block">
+    <div class="sig-title">Completion Sign-Off</div>
+    <div class="sig-grid">
+      <div><div class="sig-line"></div><div class="sig-label">Agent Signature</div><div class="sig-line" style="margin-top:32px"></div><div class="sig-label">Date</div></div>
+      <div><div class="sig-line"></div><div class="sig-label">Broker / Manager Signature</div><div class="sig-line" style="margin-top:32px"></div><div class="sig-label">Date</div></div>
+    </div>
+  </div>
+
+</div>
+
+<button class="print-btn" onclick="window.print()">Print / Save PDF</button>
+
+<script>
+  function toggleItem(item) {
+    item.classList.toggle('done');
+    item.querySelector('.cl-check').innerHTML = item.classList.contains('done') ? 'v' : '';
+    updateProg();
+  }
+  function updateProg() {
+    const active = document.getElementById(currentMode);
+    const all = active.querySelectorAll('.cl-item');
+    const done = active.querySelectorAll('.cl-item.done');
+    const pct = all.length ? Math.round(done.length / all.length * 100) : 0;
+    document.getElementById('prog-fill').style.width = pct + '%';
+    document.getElementById('prog-txt').textContent = done.length + ' of ' + all.length + ' items';
+  }
+  let currentMode = 'onboard';
+  function setMode(mode, btn) {
+    currentMode = mode;
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.cl-item').forEach(i => { i.classList.remove('done'); i.querySelector('.cl-check').innerHTML = ''; });
+    document.getElementById('onboard').style.display = mode === 'onboard' ? 'block' : 'none';
+    document.getElementById('exit').style.display = mode === 'exit' ? 'block' : 'none';
+    updateProg();
+  }
+  updateProg();
+</script>
+</body>
+</html>

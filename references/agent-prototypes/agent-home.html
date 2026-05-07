@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home — inhabit.app</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="agent-shell.css">
+<style>
+  /* Page bar (under top nav) */
+  .pagebar{background:var(--white);border-bottom:1px solid var(--mist);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;}
+  .pagebar-left{display:flex;align-items:baseline;gap:18px;}
+  .pagebar h1{font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:500;color:var(--prussian);}
+  .crumb{font-size:10.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ash);font-weight:500;}
+  .pagebar-right{font-size:12px;color:var(--ash);}
+
+  .content{padding:32px 36px 64px;max-width:1320px;width:100%;margin:0 auto;}
+
+  .hello{margin-bottom:32px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+  .hello h2{font-family:'Playfair Display',serif;font-size:2rem;font-weight:400;color:var(--prussian);line-height:1.2;}
+  .hello h2 em{font-style:italic;color:var(--gold);}
+  .hello-meta{font-size:12px;color:var(--ash);line-height:1.7;}
+  .hello-meta .num{color:var(--prussian);}
+
+  .snapshot{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--mist);border:1px solid var(--mist);margin-bottom:32px;}
+  .snap{background:var(--white);padding:22px 24px;}
+  .snap-label{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ash);font-weight:500;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+  .snap-label .delta{font-family:'DM Mono',monospace;color:var(--green);letter-spacing:0;font-weight:500;font-size:11px;}
+  .snap-label .delta.down{color:var(--rust);}
+  .snap-num{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:400;color:var(--prussian);line-height:1;margin-bottom:8px;}
+  .snap-sub{font-size:11.5px;color:var(--ash);line-height:1.5;}
+
+  .grid{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;}
+  .panel{background:var(--white);border:1px solid var(--mist);}
+  .panel-head{padding:18px 24px 14px;border-bottom:1px solid var(--mist);display:flex;justify-content:space-between;align-items:center;}
+  .panel-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:600;color:var(--prussian);}
+  .panel-action{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);text-decoration:none;font-weight:500;}
+  .panel-action:hover{color:var(--prussian);}
+
+  .task{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px 24px;border-bottom:1px solid var(--canvas2);transition:background 0.15s;}
+  .task:hover{background:var(--canvas);}
+  .task:last-child{border-bottom:none;}
+  .checkbox{width:16px;height:16px;border:1.5px solid var(--mist);background:var(--white);cursor:pointer;flex-shrink:0;}
+  .checkbox:hover{border-color:var(--prussian);}
+  .task-title{font-size:13.5px;color:var(--onyx);font-weight:400;line-height:1.4;}
+  .task-meta{font-size:11px;color:var(--ash);margin-top:3px;display:flex;gap:10px;}
+  .task-meta .pill{font-family:'DM Mono',monospace;font-size:10px;color:var(--prussian);background:var(--canvas2);padding:1px 6px;letter-spacing:0;}
+  .task-due{font-family:'DM Mono',monospace;font-size:11px;color:var(--ash);text-align:right;}
+  .task-due.urgent{color:var(--rust);font-weight:500;}
+
+  .activity{display:flex;gap:14px;padding:14px 24px;border-bottom:1px solid var(--canvas2);}
+  .activity:last-child{border-bottom:none;}
+  .activity-dot{width:8px;height:8px;border-radius:50%;background:var(--prussian);margin-top:6px;flex-shrink:0;}
+  .activity-dot.gold{background:var(--gold);}
+  .activity-dot.green{background:var(--green);}
+  .activity-body{font-size:13px;line-height:1.55;color:var(--onyx);min-width:0;flex:1;}
+  .activity-body strong{font-weight:500;color:var(--prussian);}
+  .activity-meta{font-size:10.5px;color:var(--ash);margin-top:3px;font-family:'DM Mono',monospace;}
+
+  .pipeline-row{display:flex;align-items:center;justify-content:space-between;padding:13px 24px;border-bottom:1px solid var(--canvas2);}
+  .pipeline-row:last-child{border-bottom:none;}
+  .pipeline-stage{font-size:13px;color:var(--onyx);display:flex;align-items:center;gap:10px;}
+  .stage-bar{height:6px;width:120px;background:var(--canvas2);position:relative;}
+  .stage-bar-fill{position:absolute;left:0;top:0;bottom:0;background:var(--prussian);}
+  .stage-bar-fill.gold{background:var(--gold);}
+  .pipeline-count{font-family:'DM Mono',monospace;font-size:13px;color:var(--prussian);font-weight:500;min-width:24px;text-align:right;}
+
+  .lead{display:grid;grid-template-columns:auto 1fr auto;gap:12px;padding:13px 24px;border-bottom:1px solid var(--canvas2);align-items:center;}
+  .lead:last-child{border-bottom:none;}
+  .lead-avatar{width:32px;height:32px;border-radius:50%;background:var(--canvas2);color:var(--prussian);display:flex;align-items:center;justify-content:center;font-weight:500;font-size:11px;flex-shrink:0;}
+  .lead-name{font-size:13px;color:var(--onyx);font-weight:500;}
+  .lead-source{font-size:10.5px;color:var(--ash);font-family:'DM Mono',monospace;letter-spacing:0;margin-top:1px;}
+  .lead-time{font-size:10.5px;color:var(--ash);font-family:'DM Mono',monospace;}
+
+  .mcp{margin-top:24px;background:var(--prussian);color:var(--canvas);padding:24px 28px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;border-left:3px solid var(--gold-light);}
+  .mcp-eyebrow{font-size:9.5px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-light);font-weight:600;margin-bottom:8px;}
+  .mcp h3{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:500;margin-bottom:6px;}
+  .mcp p{font-size:12.5px;color:rgba(248,246,242,0.6);line-height:1.65;max-width:640px;}
+  .mcp-cta{background:var(--gold);color:var(--canvas);padding:12px 22px;border:none;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;font-weight:500;cursor:pointer;text-decoration:none;}
+  .mcp-cta:hover{background:var(--gold-light);}
+
+  @media(max-width:1100px){.grid{grid-template-columns:1fr;}.snapshot{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:768px){.content{padding:20px;}.mcp{grid-template-columns:1fr;}.pagebar{padding:0 18px;}}
+</style>
+</head>
+<body>
+
+<div data-topnav data-page="home"></div>
+
+<header class="pagebar">
+  <div class="pagebar-left">
+    <h1>Home</h1>
+    <span class="crumb">Thursday &middot; May 7</span>
+  </div>
+  <div class="pagebar-right">
+    <span class="num" style="color:var(--gold);">3</span> tasks due today &middot; <span class="num" style="color:var(--prussian);">2</span> showings
+  </div>
+</header>
+
+<section class="content">
+
+  <div class="hello">
+    <div>
+      <h2>Good morning, <em>James</em>.</h2>
+    </div>
+    <div class="hello-meta">
+      <span class="num">12</span> unread in inbox &middot; <span class="num">7</span> new leads since Monday
+    </div>
+  </div>
+
+  <div class="snapshot">
+    <div class="snap">
+      <div class="snap-label">New Leads <span class="delta num">+4</span></div>
+      <div class="snap-num num">7</div>
+      <div class="snap-sub">since Monday &middot; 4 from MLS, 3 from web</div>
+    </div>
+    <div class="snap">
+      <div class="snap-label">Tasks Today <span class="delta num down">2 overdue</span></div>
+      <div class="snap-num num">9</div>
+      <div class="snap-sub">3 calls, 4 follow-ups, 2 admin</div>
+    </div>
+    <div class="snap">
+      <div class="snap-label">Showings <span class="delta num">+1</span></div>
+      <div class="snap-num num">2</div>
+      <div class="snap-sub">today &middot; next at 2:30 PM, 821 Pine Ridge</div>
+    </div>
+    <div class="snap">
+      <div class="snap-label">Active Listings</div>
+      <div class="snap-num num">14</div>
+      <div class="snap-sub">avg DOM <span class="num">21</span> &middot; total volume <span class="num">$11.4M</span></div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <section class="panel" style="margin-bottom:24px;">
+        <div class="panel-head">
+          <div class="panel-title">Today's Tasks</div>
+          <a class="panel-action" href="agent-tasks.html">View all &rsaquo;</a>
+        </div>
+        <div class="task">
+          <div class="checkbox"></div>
+          <div>
+            <div class="task-title">Call Maria Alvarez — confirm Saturday showing</div>
+            <div class="task-meta"><span class="pill">CALL</span><span>Buyer · pre-approved</span></div>
+          </div>
+          <div class="task-due urgent num">10:00 AM</div>
+        </div>
+        <div class="task">
+          <div class="checkbox"></div>
+          <div>
+            <div class="task-title">Send updated comps to Devon Park</div>
+            <div class="task-meta"><span class="pill">EMAIL</span><span>Seller · 4827 Bayshore</span></div>
+          </div>
+          <div class="task-due num">11:30 AM</div>
+        </div>
+        <div class="task">
+          <div class="checkbox"></div>
+          <div>
+            <div class="task-title">Review counter on 1140 Coquina Way</div>
+            <div class="task-meta"><span class="pill">DOC</span><span>SkySlope · expires 6 PM</span></div>
+          </div>
+          <div class="task-due urgent num">3:00 PM</div>
+        </div>
+        <div class="task">
+          <div class="checkbox"></div>
+          <div>
+            <div class="task-title">Follow up — Trent &amp; Olivia (60-day touch)</div>
+            <div class="task-meta"><span class="pill">CALL</span><span>Past client</span></div>
+          </div>
+          <div class="task-due num">Anytime</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Recent Activity</div>
+          <a class="panel-action" href="agent-inbox.html">Open inbox &rsaquo;</a>
+        </div>
+        <div class="activity">
+          <div class="activity-dot gold"></div>
+          <div class="activity-body">
+            <strong>Maria Alvarez</strong> replied — confirmed for Saturday at 11. Asked about parking.
+            <div class="activity-meta">SMS · 8 min ago</div>
+          </div>
+        </div>
+        <div class="activity">
+          <div class="activity-dot green"></div>
+          <div class="activity-body">
+            <strong>1140 Coquina Way</strong> — counter offer signed by buyer's agent. Awaiting your review.
+            <div class="activity-meta">SkySlope · 42 min ago</div>
+          </div>
+        </div>
+        <div class="activity">
+          <div class="activity-dot"></div>
+          <div class="activity-body">
+            New web lead: <strong>Jordan Reyes</strong> registered with criteria 3BR / $650K-$850K / Coral Gables.
+            <div class="activity-meta">FUB · 1 h ago</div>
+          </div>
+        </div>
+        <div class="activity">
+          <div class="activity-dot"></div>
+          <div class="activity-body">
+            <strong>Devon Park</strong> opened your CMA report (twice). Last viewed page 4 — comps summary.
+            <div class="activity-meta">Cloud CMA · 2 h ago</div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div>
+      <section class="panel" style="margin-bottom:24px;">
+        <div class="panel-head">
+          <div class="panel-title">Pipeline</div>
+          <a class="panel-action" href="#">Open board &rsaquo;</a>
+        </div>
+        <div class="pipeline-row"><div class="pipeline-stage">New <span class="stage-bar"><span class="stage-bar-fill gold" style="width:80%"></span></span></div><div class="pipeline-count num">7</div></div>
+        <div class="pipeline-row"><div class="pipeline-stage">Nurturing <span class="stage-bar"><span class="stage-bar-fill" style="width:100%"></span></span></div><div class="pipeline-count num">23</div></div>
+        <div class="pipeline-row"><div class="pipeline-stage">Active <span class="stage-bar"><span class="stage-bar-fill" style="width:55%"></span></span></div><div class="pipeline-count num">9</div></div>
+        <div class="pipeline-row"><div class="pipeline-stage">Under Contract <span class="stage-bar"><span class="stage-bar-fill" style="width:30%"></span></span></div><div class="pipeline-count num">4</div></div>
+        <div class="pipeline-row"><div class="pipeline-stage">Closed (90d) <span class="stage-bar"><span class="stage-bar-fill" style="width:42%"></span></span></div><div class="pipeline-count num">6</div></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title">New Leads</div>
+          <a class="panel-action" href="agent-contacts.html">Triage all &rsaquo;</a>
+        </div>
+        <div class="lead"><div class="lead-avatar">JR</div><div><div class="lead-name">Jordan Reyes</div><div class="lead-source">WEB · Coral Gables · $650-850K</div></div><div class="lead-time">1h</div></div>
+        <div class="lead"><div class="lead-avatar">SK</div><div><div class="lead-name">Sasha &amp; Kai Lin</div><div class="lead-source">MLS · Pinecrest · 4BR / pool</div></div><div class="lead-time">3h</div></div>
+        <div class="lead"><div class="lead-avatar">RW</div><div><div class="lead-name">Rebecca Whitfield</div><div class="lead-source">REFERRAL · Devon Park</div></div><div class="lead-time">5h</div></div>
+        <div class="lead"><div class="lead-avatar">DT</div><div><div class="lead-name">Daniel Torres</div><div class="lead-source">WEB · Brickell condo</div></div><div class="lead-time">1d</div></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="mcp">
+    <div>
+      <p class="mcp-eyebrow">Coming soon</p>
+      <h3>Connect Claude to your workspace.</h3>
+      <p>Run your day through natural language — pull comps, send listings, schedule showings, and draft follow-ups via the inhabit. MCP server. One install, every tool already wired to your FUB account.</p>
+    </div>
+    <a class="mcp-cta" href="#">Get on the list</a>
+  </div>
+
+</section>
+
+<script src="agent-shell.js"></script>
+</body>
+</html>

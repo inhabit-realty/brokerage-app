@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contacts — inhabit.app</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="agent-shell.css">
+<style>
+  .pagebar{background:var(--white);border-bottom:1px solid var(--mist);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;}
+  .pagebar-left{display:flex;align-items:baseline;gap:18px;}
+  .pagebar h1{font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:500;color:var(--prussian);}
+  .crumb{font-size:11.5px;color:var(--ash);}
+  .crumb .num{color:var(--prussian);}
+  .pagebar-actions{display:flex;align-items:center;gap:10px;}
+  .btn-ghost{background:transparent;color:var(--prussian);padding:9px 14px;border:1px solid var(--mist);font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+  .btn-ghost:hover{border-color:var(--prussian);}
+  .btn-primary{background:var(--gold);color:var(--canvas);padding:10px 16px;border:none;font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+  .btn-primary:hover{background:var(--gold-light);}
+
+  .layout{display:grid;grid-template-columns:240px 1fr;}
+  .lists{background:var(--white);border-right:1px solid var(--mist);padding:22px 0;min-height:calc(100vh - 56px - 60px);}
+  .lists-head{padding:0 22px 14px;display:flex;justify-content:space-between;align-items:center;font-family:'Playfair Display',serif;font-size:1rem;color:var(--prussian);font-weight:600;}
+  .all-row{padding:9px 22px;display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--prussian);font-weight:500;cursor:pointer;border-left:2px solid var(--gold);}
+  .all-row .ct{font-family:'DM Mono',monospace;font-size:11.5px;color:var(--gold);background:var(--gold-pale);padding:2px 8px;}
+  .lists-section{padding:18px 22px 6px;font-size:9.5px;letter-spacing:0.22em;text-transform:uppercase;color:var(--ash);font-weight:600;}
+  .smart{padding:8px 22px;display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--onyx);cursor:pointer;}
+  .smart:hover{background:var(--canvas);}
+  .smart svg{color:var(--ash);flex-shrink:0;}
+  .smart .ct{margin-left:auto;font-family:'DM Mono',monospace;font-size:11px;color:var(--ash);}
+  .smart.active{color:var(--prussian);font-weight:500;background:var(--canvas);}
+  .smart.active svg{color:var(--prussian);}
+
+  .main-area{padding:24px 28px 60px;min-width:0;overflow-x:auto;}
+  .header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px;flex-wrap:wrap;gap:14px;}
+  .header h2{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:400;color:var(--prussian);line-height:1.15;}
+  .header h2 em{font-style:italic;color:var(--gold);}
+  .header-meta{font-size:11.5px;color:var(--ash);margin-top:4px;}
+  .header-meta .num{color:var(--prussian);}
+
+  .toolbar{background:var(--white);border:1px solid var(--mist);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+  .tools-l{display:flex;align-items:center;gap:14px;}
+  .showing{font-size:12px;color:var(--ash);}
+  .showing strong{color:var(--prussian);font-family:'DM Mono',monospace;font-weight:500;}
+  .bulk{display:flex;gap:4px;}
+  .bulk-btn{width:30px;height:30px;background:transparent;border:1px solid var(--mist);color:var(--ash);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .bulk-btn:hover{color:var(--prussian);border-color:var(--prussian);}
+  .bulk-btn:disabled{opacity:0.5;cursor:not-allowed;}
+  .tools-r{display:flex;gap:8px;align-items:center;}
+  .tool-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--mist);font-size:11.5px;color:var(--prussian);background:var(--white);cursor:pointer;font-weight:500;}
+  .tool-pill:hover{border-color:var(--prussian);}
+  .tool-pill .num{color:var(--ash);font-family:'DM Mono',monospace;letter-spacing:0;margin-left:4px;}
+  .tool-pill.gold{color:var(--gold);}
+
+  .table-wrap{background:var(--white);border:1px solid var(--mist);border-top:none;overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:900px;}
+  thead th{position:sticky;top:0;background:var(--canvas);text-align:left;padding:10px 14px;font-size:9.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ash);font-weight:600;border-bottom:1px solid var(--mist);white-space:nowrap;}
+  thead th.sort::after{content:' ↓';color:var(--gold);}
+  tbody tr{cursor:pointer;}
+  tbody tr:hover{background:var(--canvas);}
+  tbody td{padding:14px;border-bottom:1px solid var(--canvas2);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  td.cb{width:32px;}
+
+  .name-cell{display:flex;align-items:center;gap:11px;min-width:200px;}
+  .name-av{width:34px;height:34px;border-radius:50%;background:var(--canvas2);color:var(--prussian);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:11px;flex-shrink:0;}
+  .name-av.dark{background:linear-gradient(135deg,var(--prussian3),var(--prussian));color:var(--canvas);}
+  .name-line{font-size:13px;color:var(--prussian);font-weight:500;line-height:1.3;}
+  .name-line a:hover{color:var(--gold);}
+  .name-source{font-size:10.5px;color:var(--ash);margin-top:2px;font-family:'DM Mono',monospace;letter-spacing:0;}
+  .name-source.gold{color:var(--gold);}
+
+  .stage{font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;padding:3px 8px;font-weight:500;display:inline-block;}
+  .stage.new{background:var(--gold-pale);color:var(--gold);}
+  .stage.nurturing{background:var(--canvas2);color:var(--prussian);}
+  .stage.active{background:#e6efe9;color:var(--green);}
+  .stage.sphere{background:#ece6f4;color:#5e418c;}
+  .stage.preapproved{background:#dde8d8;color:var(--green);}
+
+  td .num{color:var(--prussian);}
+  td .addr-line{font-size:11.5px;color:var(--ash);font-family:'DM Mono',monospace;letter-spacing:0;line-height:1.5;}
+  td .last-line{font-size:11.5px;color:var(--ash);font-family:'DM Mono',monospace;letter-spacing:0;}
+  td .last-line.recent{color:var(--green);}
+
+  .page-foot{padding:14px 18px;font-size:11px;color:var(--ash);display:flex;justify-content:space-between;align-items:center;}
+  .page-nav{display:flex;gap:6px;}
+  .page-nav button{width:30px;height:30px;background:var(--white);border:1px solid var(--mist);color:var(--prussian);cursor:pointer;font-family:'DM Mono',monospace;}
+  .page-nav button.on{background:var(--prussian);color:var(--canvas);border-color:var(--prussian);}
+
+  @media(max-width:1100px){.layout{grid-template-columns:200px 1fr;}}
+  @media(max-width:768px){.layout{grid-template-columns:1fr;}.lists{display:none;}}
+</style>
+</head>
+<body>
+
+<div data-topnav data-page="contacts"></div>
+
+<header class="pagebar">
+  <div class="pagebar-left">
+    <h1>Contacts</h1>
+    <span class="crumb"><span class="num">312</span> total &middot; <span class="num" style="color:var(--green);">7</span> new this week</span>
+  </div>
+  <div class="pagebar-actions">
+    <button class="btn-ghost"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Import</button>
+    <button class="btn-primary"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>New contact</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <aside class="lists">
+    <div class="lists-head">People</div>
+    <div class="all-row"><span>All Contacts</span><span class="ct num">312</span></div>
+
+    <div class="lists-section">Smart Lists</div>
+    <div class="smart active"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Recently Active <span class="ct num">28</span></div>
+    <div class="smart"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 22s-8-4.5-8-11.5a8 8 0 0116 0c0 7-8 11.5-8 11.5z"/><circle cx="12" cy="10" r="3"/></svg>Not Contacted &middot; New <span class="ct num">3</span></div>
+    <div class="smart"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l9-8 9 8M5 9v11a1 1 0 001 1h12a1 1 0 001-1V9"/></svg>Buyers &middot; Active <span class="ct num">42</span></div>
+    <div class="smart"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 12V7a2 2 0 00-2-2H6a2 2 0 00-2 2v5l8 9 8-9z"/></svg>Sellers &middot; Active <span class="ct num">14</span></div>
+    <div class="smart"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>Past Clients <span class="ct num">76</span></div>
+    <div class="smart"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="10"/></svg>Sphere <span class="ct num">98</span></div>
+    <div class="smart"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>Hot &middot; 30 d <span class="ct num">12</span></div>
+
+    <div class="lists-section">Tags</div>
+    <div class="smart"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.59 13.41L13 21l-9-9V4h8l9 9z"/><circle cx="7" cy="7" r="1"/></svg>33133 Bayshore <span class="ct num">8</span></div>
+    <div class="smart"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.59 13.41L13 21l-9-9V4h8l9 9z"/><circle cx="7" cy="7" r="1"/></svg>33146 Pine Ridge <span class="ct num">14</span></div>
+    <div class="smart"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.59 13.41L13 21l-9-9V4h8l9 9z"/><circle cx="7" cy="7" r="1"/></svg>Pinecrest target <span class="ct num">6</span></div>
+    <div class="smart"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.59 13.41L13 21l-9-9V4h8l9 9z"/><circle cx="7" cy="7" r="1"/></svg>Brickell condo <span class="ct num">19</span></div>
+  </aside>
+
+  <section class="main-area">
+
+    <div class="header">
+      <div>
+        <h2>Recently <em>active</em></h2>
+        <div class="header-meta">Contacts with activity in the last 7 days &middot; <span class="num">28</span> people &middot; sorted by <span class="num" style="color:var(--prussian);">last contact</span></div>
+      </div>
+      <button class="btn-ghost">+ New list from filter</button>
+    </div>
+
+    <div class="toolbar">
+      <div class="tools-l">
+        <span class="showing">Showing <strong>28</strong> of <strong>312</strong></span>
+        <div class="bulk">
+          <button class="bulk-btn" disabled><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v16H4zM4 4l8 8 8-8"/></svg></button>
+          <button class="bulk-btn" disabled><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 21v-7a2 2 0 012-2h10a2 2 0 012 2v7M9 7a3 3 0 116 0 3 3 0 01-6 0z"/></svg></button>
+          <button class="bulk-btn" disabled><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.59 13.41L13 21l-9-9V4h8l9 9z"/><circle cx="7" cy="7" r="1"/></svg></button>
+          <button class="bulk-btn" disabled><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 10l-5 5-5-5M12 15V3"/></svg></button>
+        </div>
+      </div>
+      <div class="tools-r">
+        <span class="tool-pill"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 6h18M6 12h12M10 18h4"/></svg>Columns <span class="num">9</span></span>
+        <span class="tool-pill"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 21v-7a2 2 0 012-2h10a2 2 0 012 2v7M9 7a3 3 0 116 0 3 3 0 01-6 0z"/></svg>Assigned to <span class="num" style="color:var(--prussian);">Me</span></span>
+        <span class="tool-pill gold"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>Filters <span class="num">2</span></span>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th class="cb"><input type="checkbox"></th><th>Name</th><th>Stage</th><th>Address &middot; Target</th><th>Phone</th><th>Email</th><th>Price</th><th class="sort">Last Contact</th><th>Created</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="cb"><input type="checkbox"></td>
+            <td><div class="name-cell"><div class="name-av">MA</div><div><div class="name-line"><a href="agent-contact.html">Maria Alvarez</a></div><div class="name-source">Web &middot; Beaches MLS form</div></div></div></td>
+            <td><span class="stage preapproved">Pre-approved</span></td>
+            <td><span class="addr-line">3BR &middot; Coral Gables 33146</span></td>
+            <td><span class="num">(305) 555-3902</span></td>
+            <td>maria.alvarez@gmail.com</td>
+            <td><span class="num">$850,000</span></td>
+            <td><span class="last-line recent">8 min ago &middot; SMS</span></td>
+            <td><span class="last-line">Apr 12, 2026</span></td>
+          </tr>
+          <tr>
+            <td class="cb"><input type="checkbox"></td>
+            <td><div class="name-cell"><div class="name-av dark">DP</div><div><div class="name-line"><a href="agent-contact.html">Devon Park</a></div><div class="name-source gold">Past Client &middot; 2021</div></div></div></td>
+            <td><span class="stage active">Active Listing</span></td>
+            <td><span class="addr-line">4827 Bayshore Dr<br>Coral Gables, FL 33133</span></td>
+            <td><span class="num">(561) 555-2847</span></td>
+            <td>devon.park@gmail.com</td>
+            <td><span class="num">$1,425,000</span></td>
+            <td><span class="last-line recent">2 d ago &middot; SMS</span></td>
+            <td><span class="last-line">Jan 8, 2024</span></td>
+          </tr>
+          <tr>
+            <td class="cb"><input type="checkbox"></td>
+            <td><div class="name-cell"><div class="name-av">JR</div><div><div class="name-line"><a href="agent-contact.html">Jordan Reyes</a></div><div class="name-source">Web &middot; sign call</div></div></div></td>
+            <td><span class="stage new">New Lead</span></td>
+            <td><span class="addr-line">3BR &middot; $650-850K<br>Coral Gables target</span></td>
+            <td><span class="num">(786) 555-1148</span></td>
+            <td>jordan.reyes@me.com</td>
+            <td><span class="num">$750,000</span></td>
+            <td><span class="last-line recent">1 h ago &middot; Email</span></td>
+            <td><span class="last-line">May 7, 2026</span></td>
+          </tr>
+          <tr>
+            <td class="cb"><input type="checkbox"></td>
+            <td><div class="name-cell"><div class="name-av">SL</div><div><div class="name-line"><a href="agent-contact.html">Sasha &amp; Kai Lin</a></div><div class="name-source">MLS &middot; VOW registration</div></div></div></td>
+            <td><span class="stage nurturing">Nurturing</span></td>
+            <td><span class="addr-line">4BR + pool &middot; $1.0-1.4M<br>Pinecrest target</span></td>
+            <td><span class="num">(305) 555-7710</span></td>
+            <td>s.lin@gmail.com</td>
+            <td><span class="num">$1,200,000</span></td>
+            <td><span class="last-line">3 h ago &middot; Email</span></td>
+            <td><span class="last-line">May 7, 2026</span></td>
+          </tr>
+          <tr>
+            <td class="cb"><input type="checkbox"></td>
+            <td><div class="name-cell"><div class="name-av">RW</div><div><div class="name-line"><a href="agent-contact.html">Rebecca Whitfield</a></div><div class="name-source gold">Referral &middot; Devon Park</div></div></div></td>
+            <td><span class="stage new">New Lead</span></td>
+            <td><span class="addr-line">3-4BR &middot; $850-1.1M<br>Coral Gables target</span></td>
+            <td><span class="num">(561) 555-9933</span></td>
+            <td>rwhitfield@outlook.com</td>
+            <td><span class="num">$950,000</span></td>
+            <td><span class="last-line">5 h ago &middot; Email</span></td>
+            <td><span class="last-line">May 5, 2026</span></td>
+          </tr>
+          <tr>
+            <td class="cb"><input type="checkbox"></td>
+            <td><div class="name-cell"><div class="name-av">DT</div><div><div class="name-line"><a href="agent-contact.html">Daniel Torres</a></div><div class="name-source">Web &middot; condo inquiry</div></div></div></td>
+            <td><span class="stage new">New Lead</span></td>
+            <td><span class="addr-line">2BR condo &middot; $550-700K<br>Brickell target</span></td>
+            <td><span class="num">(305) 555-2275</span></td>
+            <td>dtorres@gmail.com</td>
+            <td><span class="num">$625,000</span></td>
+            <td><span class="last-line">1 d ago &middot; Email</span></td>
+            <td><span class="last-line">May 4, 2026</span></td>
+          </tr>
+          <tr>
+            <td class="cb"><input type="checkbox"></td>
+            <td><div class="name-cell"><div class="name-av">EP</div><div><div class="name-line"><a href="agent-contact.html">Elise Park</a></div><div class="name-source">Past Client &middot; Devon's spouse</div></div></div></td>
+            <td><span class="stage sphere">Sphere</span></td>
+            <td><span class="addr-line">4827 Bayshore Dr<br>Coral Gables, FL 33133</span></td>
+            <td><span class="num">(561) 555-2848</span></td>
+            <td>elise.park@gmail.com</td>
+            <td><span class="num">$1,425,000</span></td>
+            <td><span class="last-line recent">2 d ago &middot; via Devon</span></td>
+            <td><span class="last-line">Jan 8, 2024</span></td>
+          </tr>
+          <tr>
+            <td class="cb"><input type="checkbox"></td>
+            <td><div class="name-cell"><div class="name-av">TO</div><div><div class="name-line"><a href="agent-contact.html">Trent &amp; Olivia Howell</a></div><div class="name-source">Past Client &middot; 2022</div></div></div></td>
+            <td><span class="stage sphere">Sphere</span></td>
+            <td><span class="addr-line">1224 Coral Way<br>Coral Gables, FL 33134</span></td>
+            <td><span class="num">(305) 555-6688</span></td>
+            <td>thowell@gmail.com</td>
+            <td><span class="num">$980,000</span></td>
+            <td><span class="last-line">2 mo ago &middot; Holiday card</span></td>
+            <td><span class="last-line">Mar 4, 2024</span></td>
+          </tr>
+          <tr>
+            <td class="cb"><input type="checkbox"></td>
+            <td><div class="name-cell"><div class="name-av">MW</div><div><div class="name-line"><a href="agent-contact.html">Michael Walker</a></div><div class="name-source">SetSchedule &middot; lead buy</div></div></div></td>
+            <td><span class="stage nurturing">Nurturing</span></td>
+            <td><span class="addr-line">SFH &middot; $2.0-2.5M<br>Pinecrest / Palmetto Bay</span></td>
+            <td><span class="num">(440) 537-6269</span></td>
+            <td>mikewalker306@gmail.com</td>
+            <td><span class="num">$2,150,000</span></td>
+            <td><span class="last-line">3 d ago &middot; Email</span></td>
+            <td><span class="last-line">Feb 22, 2024</span></td>
+          </tr>
+          <tr>
+            <td class="cb"><input type="checkbox"></td>
+            <td><div class="name-cell"><div class="name-av">RR</div><div><div class="name-line"><a href="agent-contact.html">Roxy Ramirez</a></div><div class="name-source">SetSchedule &middot; lead buy</div></div></div></td>
+            <td><span class="stage new">New Lead</span></td>
+            <td><span class="addr-line">2BR condo &middot; $850K-1.0M<br>Edgewater / Wynwood</span></td>
+            <td><span class="num">(773) 368-3737</span></td>
+            <td>roxxann@gmail.com</td>
+            <td><span class="num">$1,000,000</span></td>
+            <td><span class="last-line">4 d ago &middot; SMS</span></td>
+            <td><span class="last-line">Feb 22, 2024</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="page-foot">
+      <span>Showing <strong style="color:var(--prussian);" class="num">1-10</strong> of <strong style="color:var(--prussian);" class="num">28</strong></span>
+      <div class="page-nav"><button>&lsaquo;</button><button class="on">1</button><button>2</button><button>3</button><button>&rsaquo;</button></div>
+    </div>
+
+  </section>
+
+</div>
+
+<script src="agent-shell.js"></script>
+</body>
+</html>

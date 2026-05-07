@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Search — inhabit.app</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="agent-shell.css">
+<style>
+  .pagebar{background:var(--white);border-bottom:1px solid var(--mist);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:18px;}
+  .pagebar-left{display:flex;align-items:baseline;gap:18px;flex-shrink:0;}
+  .pagebar h1{font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:500;color:var(--prussian);}
+  .crumb{font-size:10.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ash);font-weight:500;}
+  .pagebar-search{flex:1;max-width:560px;display:flex;align-items:center;background:var(--canvas);border:1px solid var(--mist);padding:9px 14px;gap:10px;}
+  .pagebar-search svg{color:var(--ash);flex-shrink:0;}
+  .pagebar-search input{border:none;background:transparent;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;flex:1;color:var(--onyx);}
+  .pagebar-actions{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .saved-btn{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--prussian);font-weight:500;border:1px solid var(--mist);padding:9px 14px;display:flex;align-items:center;gap:6px;background:var(--white);}
+  .saved-btn:hover{border-color:var(--prussian);}
+  .icon-btn{width:36px;height:36px;border:1px solid var(--mist);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ash);}
+  .icon-btn:hover{color:var(--prussian);border-color:var(--prussian);}
+
+  .results-grid{display:grid;grid-template-columns:240px 1fr 380px;min-height:calc(100vh - 56px - 60px);}
+  .filters{background:var(--white);border-right:1px solid var(--mist);padding:24px 22px;overflow-y:auto;}
+  .filter-head{font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--prussian);margin-bottom:18px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
+  .filter-head a{font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);font-weight:500;font-family:'DM Sans',sans-serif;}
+  .filter-group{padding:18px 0;border-top:1px solid var(--canvas2);}
+  .filter-group:first-of-type{border-top:none;padding-top:0;}
+  .filter-label{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ash);font-weight:500;margin-bottom:12px;}
+  .price-range{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .price-range input{width:100%;border:1px solid var(--mist);background:var(--canvas);padding:8px 10px;font-family:'DM Mono',monospace;font-size:12px;color:var(--onyx);outline:none;}
+  .price-range input:focus{border-color:var(--prussian);}
+  .chip-row{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{font-size:11px;padding:6px 10px;border:1px solid var(--mist);background:var(--white);color:var(--onyx);cursor:pointer;font-family:'DM Sans',sans-serif;}
+  .chip:hover{border-color:var(--prussian);}
+  .chip.on{background:var(--prussian);color:var(--canvas);border-color:var(--prussian);}
+  .check-row{display:flex;flex-direction:column;gap:8px;}
+  .check-row label{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--onyx);cursor:pointer;}
+  .check-row input{accent-color:var(--prussian);}
+  .check-row label .num{margin-left:auto;color:var(--ash);font-size:11px;}
+
+  .results{padding:22px 26px;overflow-y:auto;}
+  .results-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px;}
+  .results-count{font-size:12.5px;color:var(--ash);}
+  .results-count strong{color:var(--prussian);font-family:'DM Mono',monospace;font-weight:500;}
+  .source{font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);font-weight:600;}
+  .sort{display:flex;gap:8px;align-items:center;}
+  .sort select{border:1px solid var(--mist);background:var(--white);padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--onyx);outline:none;}
+
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;}
+  .listing{background:var(--white);border:1px solid var(--mist);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow 0.2s, transform 0.2s;cursor:pointer;}
+  .listing:hover{box-shadow:0 4px 18px rgba(26,48,68,0.08);transform:translateY(-1px);}
+  .photo{aspect-ratio:4/3;background:linear-gradient(135deg, var(--prussian3) 0%, var(--prussian) 100%);position:relative;overflow:hidden;}
+  .photo::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(196,146,42,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(196,146,42,0.05) 1px, transparent 1px);background-size:32px 32px;}
+  .photo .badge{position:absolute;top:12px;left:12px;background:rgba(26,48,68,0.92);color:var(--canvas);font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;padding:4px 8px;font-weight:500;z-index:2;}
+  .photo .badge.gold{background:var(--gold);}
+  .photo .actions{position:absolute;top:10px;right:10px;display:flex;gap:6px;opacity:0;transition:opacity 0.2s;z-index:2;}
+  .listing:hover .photo .actions{opacity:1;}
+  .photo-act{width:30px;height:30px;background:rgba(255,255,255,0.94);color:var(--prussian);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .photo-act:hover{background:var(--gold);color:var(--canvas);}
+  .photo .price-label{position:absolute;left:12px;bottom:12px;font-family:'DM Mono',monospace;color:var(--canvas);font-size:1.05rem;font-weight:500;letter-spacing:0;text-shadow:0 2px 8px rgba(0,0,0,0.3);z-index:2;}
+  .listing-body{padding:14px 16px 16px;}
+  .addr{font-size:13.5px;color:var(--prussian);font-weight:500;line-height:1.4;}
+  .city{font-size:11.5px;color:var(--ash);margin-top:2px;}
+  .stats{display:flex;gap:14px;margin-top:10px;padding-top:10px;border-top:1px solid var(--canvas2);font-size:11.5px;color:var(--onyx);}
+  .stats span{font-family:'DM Mono',monospace;}
+  .stats .label{color:var(--ash);font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;display:block;margin-bottom:2px;}
+  .meta-row{display:flex;justify-content:space-between;margin-top:10px;font-size:10.5px;color:var(--ash);font-family:'DM Mono',monospace;}
+
+  .map{background:#dfe5e3;border-left:1px solid var(--mist);position:sticky;top:0;height:calc(100vh - 56px - 60px);overflow:hidden;}
+  .map-canvas{position:absolute;inset:0;background-color:#dde3df;background-image:linear-gradient(rgba(26,48,68,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(26,48,68,0.06) 1px, transparent 1px), radial-gradient(ellipse at 35% 40%, rgba(196,146,42,0.08) 0%, transparent 30%), radial-gradient(ellipse at 70% 60%, rgba(26,48,68,0.05) 0%, transparent 35%);background-size:40px 40px, 40px 40px, 100% 100%, 100% 100%;}
+  .pin{position:absolute;width:34px;height:42px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;color:var(--canvas);background:var(--prussian);border-radius:18px 18px 18px 4px;transform:translate(-50%,-100%);cursor:pointer;border:2px solid var(--canvas);}
+  .pin.gold{background:var(--gold);}
+  .pin:hover{background:var(--gold);}
+  .map-foot{position:absolute;bottom:14px;left:14px;right:14px;background:rgba(255,255,255,0.95);border:1px solid var(--mist);padding:10px 14px;font-size:11px;color:var(--ash);display:flex;justify-content:space-between;align-items:center;}
+  .map-foot strong{color:var(--prussian);font-family:'DM Mono',monospace;font-weight:500;}
+
+  .source-foot{margin-top:24px;padding-top:18px;border-top:1px solid var(--mist);font-size:10.5px;color:var(--ash);display:flex;justify-content:space-between;}
+  .source-foot code{font-family:'DM Mono',monospace;color:var(--prussian);background:var(--canvas2);padding:2px 6px;}
+
+  @media(max-width:1280px){.results-grid{grid-template-columns:220px 1fr 320px;}.cards{grid-template-columns:1fr;}}
+  @media(max-width:980px){.results-grid{grid-template-columns:1fr;}.map,.filters{display:none;}.cards{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:768px){.cards{grid-template-columns:1fr;}.pagebar{flex-wrap:wrap;height:auto;padding:12px 18px;}.pagebar-search{order:3;width:100%;max-width:none;}}
+</style>
+</head>
+<body>
+
+<div data-topnav data-page="search"></div>
+
+<header class="pagebar">
+  <div class="pagebar-left">
+    <h1>Search</h1>
+    <span class="crumb">Listing Data</span>
+  </div>
+  <div class="pagebar-search">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg>
+    <input type="text" placeholder="Address, MLS#, neighborhood, ZIP…" value="Coral Gables, FL">
+  </div>
+  <div class="pagebar-actions">
+    <a class="saved-btn" href="#"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>Saved · 4</a>
+    <button class="icon-btn" title="View as map"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2zM9 4v14M15 6v14"/></svg></button>
+  </div>
+</header>
+
+<div class="results-grid">
+
+  <aside class="filters">
+    <div class="filter-head">Filters <a href="#">Clear</a></div>
+    <div class="filter-group">
+      <div class="filter-label">Price</div>
+      <div class="price-range"><input type="text" value="$650K"><input type="text" value="$1.2M"></div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-label">Bedrooms</div>
+      <div class="chip-row"><button class="chip">Any</button><button class="chip">2+</button><button class="chip on">3+</button><button class="chip">4+</button><button class="chip">5+</button></div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-label">Bathrooms</div>
+      <div class="chip-row"><button class="chip">Any</button><button class="chip">1+</button><button class="chip on">2+</button><button class="chip">3+</button></div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-label">Property Type</div>
+      <div class="check-row">
+        <label><input type="checkbox" checked> Single Family <span class="num">182</span></label>
+        <label><input type="checkbox" checked> Condo <span class="num">94</span></label>
+        <label><input type="checkbox"> Townhouse <span class="num">31</span></label>
+        <label><input type="checkbox"> Multi-Family <span class="num">8</span></label>
+        <label><input type="checkbox"> Land <span class="num">14</span></label>
+      </div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-label">Status</div>
+      <div class="check-row">
+        <label><input type="checkbox" checked> Active <span class="num">247</span></label>
+        <label><input type="checkbox"> Coming Soon <span class="num">19</span></label>
+        <label><input type="checkbox"> Pending <span class="num">42</span></label>
+        <label><input type="checkbox"> Closed (90d) <span class="num">156</span></label>
+      </div>
+    </div>
+    <div class="filter-group">
+      <div class="filter-label">Features</div>
+      <div class="check-row">
+        <label><input type="checkbox"> Pool</label>
+        <label><input type="checkbox"> Waterfront</label>
+        <label><input type="checkbox"> Garage 2+</label>
+        <label><input type="checkbox"> New Construction</label>
+        <label><input type="checkbox"> Gated</label>
+      </div>
+    </div>
+  </aside>
+
+  <section class="results">
+    <div class="results-head">
+      <div>
+        <span class="results-count"><strong>247</strong> active listings &middot; Coral Gables, FL</span>
+        <div style="margin-top:4px;"><span class="source">via Listing Data</span></div>
+      </div>
+      <div class="sort">
+        <span style="font-size:11px;color:var(--ash);text-transform:uppercase;letter-spacing:0.14em;">Sort</span>
+        <select><option>Newest</option><option>Price — Low to High</option><option>Price — High to Low</option><option>Days on Market</option><option>Recently Reduced</option></select>
+      </div>
+    </div>
+
+    <div class="cards">
+      <article class="listing">
+        <div class="photo">
+          <span class="badge gold">New</span>
+          <div class="actions"><button class="photo-act"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 9c0 7-8 12-8 12S4 16 4 9a5 5 0 0110-1 5 5 0 0110 1z"/></svg></button><button class="photo-act"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></button><button class="photo-act"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="16"/><path d="M3 10h18M8 4v4M16 4v4"/></svg></button></div>
+          <div class="price-label num">$1,185,000</div>
+        </div>
+        <div class="listing-body">
+          <div class="addr">821 Pine Ridge Lane</div>
+          <div class="city">Coral Gables, FL 33146</div>
+          <div class="stats"><div><span class="label">Beds</span><span>4</span></div><div><span class="label">Baths</span><span>3</span></div><div><span class="label">Sqft</span><span>2,842</span></div><div><span class="label">Lot</span><span>0.21 ac</span></div></div>
+          <div class="meta-row"><span>MLS A11456712</span><span>3 DOM</span></div>
+        </div>
+      </article>
+
+      <article class="listing">
+        <div class="photo">
+          <span class="badge">Active</span>
+          <div class="actions"><button class="photo-act"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 9c0 7-8 12-8 12S4 16 4 9a5 5 0 0110-1 5 5 0 0110 1z"/></svg></button><button class="photo-act"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></button><button class="photo-act"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="16"/><path d="M3 10h18M8 4v4M16 4v4"/></svg></button></div>
+          <div class="price-label num">$945,000</div>
+        </div>
+        <div class="listing-body">
+          <div class="addr">2204 Alhambra Circle</div>
+          <div class="city">Coral Gables, FL 33134</div>
+          <div class="stats"><div><span class="label">Beds</span><span>3</span></div><div><span class="label">Baths</span><span>2.5</span></div><div><span class="label">Sqft</span><span>2,140</span></div><div><span class="label">Lot</span><span>0.17 ac</span></div></div>
+          <div class="meta-row"><span>MLS A11447228</span><span>14 DOM</span></div>
+        </div>
+      </article>
+
+      <article class="listing">
+        <div class="photo">
+          <span class="badge">Active</span>
+          <div class="price-label num">$762,500</div>
+        </div>
+        <div class="listing-body">
+          <div class="addr">1140 Coquina Way</div>
+          <div class="city">Coral Gables, FL 33156</div>
+          <div class="stats"><div><span class="label">Beds</span><span>3</span></div><div><span class="label">Baths</span><span>2</span></div><div><span class="label">Sqft</span><span>1,890</span></div><div><span class="label">Lot</span><span>0.14 ac</span></div></div>
+          <div class="meta-row"><span>MLS A11442198</span><span>22 DOM &middot; reduced</span></div>
+        </div>
+      </article>
+
+      <article class="listing">
+        <div class="photo">
+          <span class="badge gold">Coming Soon</span>
+          <div class="price-label num">$1,425,000</div>
+        </div>
+        <div class="listing-body">
+          <div class="addr">4827 Bayshore Drive</div>
+          <div class="city">Coral Gables, FL 33133</div>
+          <div class="stats"><div><span class="label">Beds</span><span>5</span></div><div><span class="label">Baths</span><span>4</span></div><div><span class="label">Sqft</span><span>3,650</span></div><div><span class="label">Lot</span><span>0.32 ac</span></div></div>
+          <div class="meta-row"><span>MLS A11459003</span><span>Listed by you</span></div>
+        </div>
+      </article>
+
+      <article class="listing">
+        <div class="photo">
+          <span class="badge">Active</span>
+          <div class="price-label num">$685,000</div>
+        </div>
+        <div class="listing-body">
+          <div class="addr">3318 Santa Maria Street</div>
+          <div class="city">Coral Gables, FL 33134</div>
+          <div class="stats"><div><span class="label">Beds</span><span>3</span></div><div><span class="label">Baths</span><span>2</span></div><div><span class="label">Sqft</span><span>1,720</span></div><div><span class="label">Lot</span><span>0.12 ac</span></div></div>
+          <div class="meta-row"><span>MLS A11438817</span><span>31 DOM</span></div>
+        </div>
+      </article>
+
+      <article class="listing">
+        <div class="photo">
+          <span class="badge">Active</span>
+          <div class="price-label num">$1,050,000</div>
+        </div>
+        <div class="listing-body">
+          <div class="addr">560 Hardee Road</div>
+          <div class="city">Coral Gables, FL 33146</div>
+          <div class="stats"><div><span class="label">Beds</span><span>4</span></div><div><span class="label">Baths</span><span>3</span></div><div><span class="label">Sqft</span><span>2,510</span></div><div><span class="label">Lot</span><span>0.19 ac</span></div></div>
+          <div class="meta-row"><span>MLS A11451104</span><span>9 DOM</span></div>
+        </div>
+      </article>
+    </div>
+
+    <div class="source-foot">
+      <span>Listings sourced from <code>LISTING_DATA_API_BASE/listings</code></span>
+      <span>Updated 4 min ago &middot; cache TTL 5 min</span>
+    </div>
+  </section>
+
+  <aside class="map">
+    <div class="map-canvas"></div>
+    <div class="pin gold" style="top:32%;left:38%;">$1.18</div>
+    <div class="pin" style="top:46%;left:54%;">$945</div>
+    <div class="pin" style="top:60%;left:42%;">$762</div>
+    <div class="pin gold" style="top:38%;left:68%;">$1.42</div>
+    <div class="pin" style="top:68%;left:62%;">$685</div>
+    <div class="pin" style="top:52%;left:30%;">$1.05</div>
+    <div class="map-foot"><span>Showing <strong>247</strong> on map</span><span>Coral Gables &middot; <strong>3.2 mi</strong></span></div>
+  </aside>
+
+</div>
+
+<script src="agent-shell.js"></script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join inhabit. - Build Your Career on 100%</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --prussian:   #1A3044;
+    --prussian2:  #122233;
+    --prussian3:  #243e55;
+    --onyx:       #1A1A1A;
+    --canvas:     #F8F6F2;
+    --canvas2:    #EDE9E2;
+    --gold:       #8A6500;
+    --gold-light: #C4922A;
+    --gold-pale:  #E8D5A8;
+    --mist:       #D8D2C8;
+    --ash:        #6A6460;
+    --white:      #FFFFFF;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; font-weight: 300; background: var(--canvas); color: var(--onyx); overflow-x: hidden; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(26,48,68,0.97); backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 56px; height: 56px;
+    border-bottom: 1px solid rgba(196,146,42,0.25);
+  }
+  .logo { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; color: var(--canvas); }
+  .logo span { color: var(--gold-light); font-weight: 400; font-style: italic; }
+  nav ul { list-style: none; display: flex; gap: 32px; align-items: center; }
+  nav ul li a { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(248,246,242,0.55); text-decoration: none; font-weight: 500; transition: color 0.2s; }
+  nav ul li a:hover { color: var(--gold-light); }
+  .nav-cta { background: var(--gold) !important; color: var(--canvas) !important; padding: 8px 22px; border-radius: 2px; font-weight: 500 !important; opacity: 1 !important; }
+  .nav-cta:hover { background: var(--gold-light) !important; color: var(--canvas) !important; }
+
+  .hero { min-height: 100vh; background: var(--prussian); display: flex; align-items: center; padding: 0 72px; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(196,146,42,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(196,146,42,0.05) 1px, transparent 1px); background-size: 72px 72px; mask-image: radial-gradient(ellipse 80% 80% at 60% 40%, black 0%, transparent 70%); }
+  .hero::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 55% 70% at 65% 45%, rgba(138,101,0,0.14) 0%, transparent 65%); pointer-events: none; }
+  .hero-content { position: relative; z-index: 2; max-width: 660px; }
+
+  .eyebrow { display: inline-flex; align-items: center; gap: 12px; font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-light); font-weight: 500; margin-bottom: 28px; }
+  .eyebrow::before { content: ''; width: 28px; height: 1px; background: var(--gold-light); }
+
+  h1 { font-family: 'Playfair Display', serif; font-size: clamp(3rem, 5.5vw, 5rem); font-weight: 400; line-height: 1.08; color: var(--canvas); margin-bottom: 24px; }
+  h1 em { font-style: italic; color: var(--gold-light); }
+  .hero-sub { font-size: 1.05rem; line-height: 1.75; color: rgba(248,246,242,0.65); max-width: 460px; margin-bottom: 40px; }
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+  .btn-primary { background: var(--gold); color: var(--canvas); padding: 14px 32px; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; text-decoration: none; display: inline-block; transition: background 0.2s, transform 0.15s; }
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .btn-ghost { background: transparent; color: var(--canvas); padding: 13px 32px; border: 1px solid rgba(248,246,242,0.25); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; text-decoration: none; display: inline-block; transition: border-color 0.2s, color 0.2s; }
+  .btn-ghost:hover { border-color: var(--gold-light); color: var(--gold-light); }
+
+  .hero-stats { position: absolute; bottom: 0; left: 0; right: 0; display: flex; border-top: 1px solid rgba(196,146,42,0.2); }
+  .hero-stat { flex: 1; padding: 28px 48px; border-right: 1px solid rgba(196,146,42,0.12); }
+  .hero-stat:last-child { border-right: none; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 400; color: var(--gold-light); line-height: 1; }
+  .stat-label { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(248,246,242,0.45); margin-top: 6px; }
+
+  .section { padding: 96px 72px; }
+  .section-eyebrow { font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+  .section-eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--gold); }
+  h2 { font-family: 'Playfair Display', serif; font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 400; line-height: 1.15; color: var(--onyx); margin-bottom: 14px; }
+  h2 em { font-style: italic; color: var(--prussian); }
+  .section-desc { font-size: 1rem; line-height: 1.75; color: var(--ash); max-width: 520px; margin-bottom: 48px; }
+
+  .paths { background: var(--canvas); }
+  .paths-grid { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--mist); }
+  .path-card { padding: 36px 28px; border-right: 1px solid var(--mist); position: relative; overflow: hidden; background: var(--white); transition: background 0.25s; }
+  .path-card:last-child { border-right: none; }
+  .path-card::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--prussian); transform: scaleX(0); transform-origin: left; transition: transform 0.35s ease; }
+  .path-card:hover { background: var(--canvas); }
+  .path-card:hover::after { transform: scaleX(1); }
+  .path-card h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 600; color: var(--prussian); margin-bottom: 10px; }
+  .path-card p { font-size: 13px; line-height: 1.7; color: var(--ash); margin-bottom: 20px; }
+  .path-features { list-style: none; margin-bottom: 28px; }
+  .path-features li { font-size: 12.5px; line-height: 1.5; color: var(--onyx); display: flex; align-items: baseline; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--canvas2); }
+  .path-features li::before { content: '>'; color: var(--gold); font-size: 11px; flex-shrink: 0; }
+  .path-link { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--prussian); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; transition: gap 0.2s, color 0.2s; }
+  .path-link:hover { gap: 10px; color: var(--gold); }
+
+  .tech-bar { background: var(--prussian2); border-top: 1px solid rgba(196,146,42,0.2); border-bottom: 1px solid rgba(196,146,42,0.2); padding: 24px 72px; display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
+  .tech-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(196,146,42,0.7); white-space: nowrap; font-weight: 500; }
+  .tech-div { width: 1px; height: 20px; background: rgba(196,146,42,0.2); flex-shrink: 0; }
+  .tech-items { display: flex; gap: 28px; flex-wrap: wrap; }
+  .tech-item { font-size: 12px; color: rgba(248,246,242,0.5); letter-spacing: 0.04em; transition: color 0.2s; cursor: default; }
+  .tech-item:hover { color: var(--gold-light); }
+
+  .why { background: var(--prussian); }
+  .why-layout { display: grid; grid-template-columns: 1fr 1.1fr; gap: 80px; align-items: center; }
+  .why h2 { color: var(--canvas); }
+  .why h2 em { color: var(--gold-light); }
+  .why .section-eyebrow { color: var(--gold-light); }
+  .why .section-eyebrow::before { background: var(--gold-light); }
+  .why .section-desc { color: rgba(248,246,242,0.6); }
+  .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+  .why-card { background: rgba(248,246,242,0.04); border: 1px solid rgba(196,146,42,0.12); padding: 28px 24px; transition: background 0.2s; }
+  .why-card:hover { background: rgba(248,246,242,0.07); }
+  .why-num { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 400; color: rgba(196,146,42,0.2); line-height: 1; margin-bottom: 14px; }
+  .why-card h4 { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; color: var(--canvas); margin-bottom: 8px; }
+  .why-card p { font-size: 12.5px; line-height: 1.7; color: rgba(248,246,242,0.5); }
+
+  .training { background: var(--canvas); }
+  .training-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+  .step { display: flex; gap: 20px; padding: 24px 0; border-bottom: 1px solid var(--canvas2); transition: padding-left 0.25s; }
+  .step:hover { padding-left: 6px; }
+  .step-num { font-family: 'Playfair Display', serif; font-size: 14px; font-style: italic; color: var(--gold); flex-shrink: 0; width: 24px; padding-top: 2px; }
+  .step h4 { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; color: var(--prussian); margin-bottom: 6px; }
+  .step p { font-size: 12.5px; line-height: 1.7; color: var(--ash); }
+  .ramp-card { background: var(--prussian); padding: 36px; position: sticky; top: 76px; }
+  .ramp-header { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-light); font-weight: 500; margin-bottom: 28px; }
+  .ramp-phase { margin-bottom: 24px; }
+  .ramp-phase-label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(248,246,242,0.4); margin-bottom: 8px; }
+  .ramp-bar { height: 3px; background: rgba(196,146,42,0.12); border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
+  .ramp-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-light)); animation: grow 1.2s ease both; }
+  @keyframes grow { from { width: 0; } }
+  .ramp-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ramp-tag { font-size: 10.5px; padding: 3px 9px; border: 1px solid rgba(196,146,42,0.2); color: rgba(248,246,242,0.55); }
+  .ramp-note { margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(196,146,42,0.15); font-size: 11.5px; color: rgba(248,246,242,0.4); line-height: 1.7; }
+
+  .form-section { background: var(--canvas2); border-top: 1px solid var(--mist); }
+  .form-layout { display: grid; grid-template-columns: 1fr 1.1fr; gap: 80px; align-items: start; }
+  .form-layout h2 em { color: var(--prussian); }
+  .legal-note { font-size: 11px; color: rgba(26,48,68,0.45); line-height: 1.7; border-top: 1px solid var(--mist); padding-top: 16px; margin-top: 12px; }
+  form { display: flex; flex-direction: column; gap: 14px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  label { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ash); font-weight: 500; }
+  input, select, textarea { background: var(--white); border: 1px solid var(--mist); color: var(--onyx); padding: 11px 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 300; outline: none; transition: border-color 0.2s; border-radius: 2px; }
+  input:focus, select:focus, textarea:focus { border-color: var(--prussian); }
+  select option { background: var(--white); }
+  textarea { resize: vertical; min-height: 88px; }
+
+  footer { background: var(--prussian2); border-top: 1px solid rgba(196,146,42,0.15); padding: 28px 72px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  footer .logo { font-size: 15px; }
+  footer p { font-size: 11px; color: rgba(248,246,242,0.35); line-height: 1.7; text-align: right; }
+
+  @media (max-width: 1024px) { .section { padding: 64px 36px; } nav { padding: 0 24px; } .hero { padding: 0 36px; } .hero-stat { padding: 20px 24px; } .tech-bar { padding: 20px 36px; } footer { padding: 24px 36px; } .paths-grid { grid-template-columns: 1fr 1fr; } .why-layout, .training-layout, .form-layout { grid-template-columns: 1fr; gap: 40px; } }
+  @media (max-width: 640px) { nav ul { display: none; } .hero { padding: 0 20px; } .section { padding: 48px 20px; } .hero-stats { flex-wrap: wrap; } .hero-stat { flex: 0 0 50%; padding: 16px 20px; } .paths-grid { grid-template-columns: 1fr; } .why-grid { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } footer { flex-direction: column; padding: 20px; } footer p { text-align: center; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">inhabit<span>.</span> realty</div>
+  <ul>
+    <li><a href="#paths">Your Path</a></li>
+    <li><a href="#why">Why Us</a></li>
+    <li><a href="#training">Training</a></li>
+    <li><a href="#join" class="nav-cta">Apply Now</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <p class="eyebrow">Join inhabit. realty</p>
+    <h1>Build Your Career<br>on <em>100%</em><br>Commission</h1>
+    <p class="hero-sub">Keep everything you earn. Access proven coaching, cutting-edge technology, and a brokerage built to grow with you &mdash; not against you.</p>
+    <div class="hero-actions">
+      <a href="#join" class="btn-primary">Apply Now</a>
+      <a href="#paths" class="btn-ghost">Explore Paths</a>
+    </div>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="stat-num">100%</div><div class="stat-label">Commission to You</div></div>
+    <div class="hero-stat"><div class="stat-num">$0</div><div class="stat-label">Hidden Desk Fees</div></div>
+    <div class="hero-stat"><div class="stat-num">90</div><div class="stat-label">Day Ramp Program</div></div>
+    <div class="hero-stat"><div class="stat-num">24/7</div><div class="stat-label">Support &amp; Coaching</div></div>
+  </div>
+</section>
+
+<section class="section paths" id="paths">
+  <p class="section-eyebrow">Your Path Forward</p>
+  <h2>One Brokerage. <em>Four Distinct Paths.</em></h2>
+  <p class="section-desc">Whether you're parking your license, building solo, leading a team, or expanding as a broker &mdash; we have the structure for where you are and where you're going.</p>
+  <div class="paths-grid">
+    <div class="path-card">
+      <h3>Park Your License</h3>
+      <p>Keep your license active and earn referral income with zero production pressure.</p>
+      <ul class="path-features">
+        <li>Maintain an active license</li><li>Earn passive referral income</li><li>No production minimums</li><li>Re-activate any time</li>
+      </ul>
+      <a href="#join" class="path-link">Learn More</a>
+    </div>
+    <div class="path-card">
+      <h3>Agents</h3>
+      <p>The full solo experience &mdash; maximum commission, premium tools, and real coaching.</p>
+      <ul class="path-features">
+        <li>100% commission structure</li><li>Lofty IDX website &amp; CRM</li><li>Done-for-you marketing templates</li><li>30/60/90 day coaching plan</li>
+      </ul>
+      <a href="#join" class="path-link">Apply as an Agent</a>
+    </div>
+    <div class="path-card">
+      <h3>Teams</h3>
+      <p>Build and lead your own team inside inhabit.'s infrastructure without starting from scratch.</p>
+      <ul class="path-features">
+        <li>100% commission base</li><li>Lead your own team</li><li>Co-branded marketing assets</li><li>Team performance dashboards</li>
+      </ul>
+      <a href="#join" class="path-link">Build Your Team</a>
+    </div>
+    <div class="path-card">
+      <h3>Brokers</h3>
+      <p>Produce your own deals and earn residuals on your agent network inside one clean structure.</p>
+      <ul class="path-features">
+        <li>100% on your own transactions</li><li>Earn per agent transaction</li><li>Full back-office support</li><li>Leadership development track</li>
+      </ul>
+      <a href="#join" class="path-link">Talk to Us</a>
+    </div>
+  </div>
+</section>
+
+<div class="tech-bar">
+  <span class="tech-label">Technology &amp; Platforms</span>
+  <div class="tech-div"></div>
+  <div class="tech-items">
+    <span class="tech-item">Lofty CRM</span><span class="tech-item">IDX Websites</span><span class="tech-item">AI Lead Scoring</span><span class="tech-item">ShowingTime</span><span class="tech-item">DocuSign</span><span class="tech-item">Transaction Management</span><span class="tech-item">Market Analytics</span>
+  </div>
+</div>
+
+<section class="section why" id="why">
+  <div class="why-layout">
+    <div>
+      <p class="section-eyebrow">Why inhabit.</p>
+      <h2>A Brokerage Built<br>for <em>Builders</em></h2>
+      <p class="section-desc">We built inhabit. because agents deserve to keep what they earn &mdash; and get the support they actually need. No politics. No arbitrary splits. Just a clean structure and a team that wants you to win.</p>
+      <p class="section-desc" style="margin-top:-24px;">Whether you're a rising star, a struggling agent who needs a better system, or an experienced producer who's simply under-supported &mdash; there's a home for you here.</p>
+      <a href="#join" class="btn-primary">Start Your Application</a>
+    </div>
+    <div class="why-grid">
+      <div class="why-card"><div class="why-num">01</div><h4>Transparency First</h4><p>Every commission structure, fee, and expectation is in writing before you sign anything. No surprises.</p></div>
+      <div class="why-card"><div class="why-num">02</div><h4>Real Coaching</h4><p>Weekly accountability, a 30/60/90 ramp plan, and a coach who's sold homes &mdash; not just managed them.</p></div>
+      <div class="why-card"><div class="why-num">03</div><h4>Marketing Ready</h4><p>Done-for-you templates, listing assets, and co-branded materials available from Day 1.</p></div>
+      <div class="why-card"><div class="why-num">04</div><h4>Scale With Us</h4><p>Grow from solo agent to team leader to broker &mdash; inside one brokerage, without starting over.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section training" id="training">
+  <p class="section-eyebrow">The inhabit. Ramp</p>
+  <h2>From Day One to <em>Your First Deal Fast</em></h2>
+  <p class="section-desc">A structured 90-day program that gets agents productive quickly, with ongoing coaching and accountability built in from the start.</p>
+  <div class="training-layout">
+    <div>
+      <div class="step"><div class="step-num">01</div><div><h4>Motivation &amp; Expectations Meeting</h4><p>A 1-hour deep dive to align on your 3-year vision, honesty expectations, accountability framework, and offer terms.</p></div></div>
+      <div class="step"><div class="step-num">02</div><div><h4>Orientation &amp; Systems Setup</h4><p>ICA signing, license transfer, MLS activation, Lofty CRM configuration, and a full platform walkthrough in week one.</p></div></div>
+      <div class="step"><div class="step-num">03</div><div><h4>30-Day &mdash; Foundation</h4><p>Scripts, database-building (200+ contacts), first prospecting calls, and shadowing experienced agents on live appointments.</p></div></div>
+      <div class="step"><div class="step-num">04</div><div><h4>60-Day &mdash; Activation</h4><p>First live unsupervised appointments, offer writing, contract management, and your first transaction start to finish.</p></div></div>
+      <div class="step"><div class="step-num">05</div><div><h4>90-Day &mdash; Independence</h4><p>Pipeline mastery, annual business planning, first closing, and graduating to your full independent model.</p></div></div>
+      <div class="step"><div class="step-num">06</div><div><h4>Ongoing Coaching &amp; Vision Reviews</h4><p>Weekly team meetings, monthly 1:1 coaching calls, and quarterly vision reviews tied to your personal goals.</p></div></div>
+    </div>
+    <div class="ramp-card">
+      <div class="ramp-header">90-Day Progress Map</div>
+      <div class="ramp-phase"><div class="ramp-phase-label">Days 1-30 &middot; Foundation</div><div class="ramp-bar"><div class="ramp-fill" style="width:100%"></div></div><div class="ramp-tags"><span class="ramp-tag">ICA Signed</span><span class="ramp-tag">MLS Active</span><span class="ramp-tag">CRM Setup</span><span class="ramp-tag">Database Built</span><span class="ramp-tag">First Calls</span></div></div>
+      <div class="ramp-phase"><div class="ramp-phase-label">Days 31-60 &middot; Activation</div><div class="ramp-bar"><div class="ramp-fill" style="width:100%;animation-delay:.3s"></div></div><div class="ramp-tags"><span class="ramp-tag">Live Appointments</span><span class="ramp-tag">Offer Writing</span><span class="ramp-tag">First Transaction</span><span class="ramp-tag">Marketing Live</span></div></div>
+      <div class="ramp-phase"><div class="ramp-phase-label">Days 61-90 &middot; Independence</div><div class="ramp-bar"><div class="ramp-fill" style="width:100%;animation-delay:.6s"></div></div><div class="ramp-tags"><span class="ramp-tag">Pipeline Mgmt</span><span class="ramp-tag">Annual Plan</span><span class="ramp-tag">First Closing</span><span class="ramp-tag">Graduate</span></div></div>
+      <div class="ramp-note">Agents who complete the structured 30/60/90 ramp program close their first deal significantly faster &mdash; and stay longer &mdash; than those without structured onboarding.</div>
+    </div>
+  </div>
+</section>
+
+<section class="section form-section" id="join">
+  <div class="form-layout">
+    <div>
+      <p class="section-eyebrow">Take the First Step</p>
+      <h2>Let's Have a <em>Real Conversation</em></h2>
+      <p class="section-desc">No sales pressure. Just a 30-minute discovery call to understand where you are, where you want to go, and whether inhabit. is the right fit &mdash; for both of us.</p>
+      <p class="section-desc" style="margin-top:-24px;">We'll walk you through your path options, commission structure, technology stack, and what our coaching actually looks like in practice.</p>
+      <div class="legal-note">By submitting, you agree to be contacted by an inhabit. realty representative. We do not share your information with third parties. All agents are subject to a signed Independent Contractor Agreement and state license verification prior to activation. Equal Housing Opportunity.</div>
+    </div>
+    <form onsubmit="handleSubmit(event)">
+      <div class="form-row">
+        <div class="form-group"><label>First Name</label><input type="text" placeholder="First" required></div>
+        <div class="form-group"><label>Last Name</label><input type="text" placeholder="Last" required></div>
+      </div>
+      <div class="form-group"><label>Email Address</label><input type="email" placeholder="you@example.com" required></div>
+      <div class="form-group"><label>Phone Number</label><input type="tel" placeholder="(555) 000-0000"></div>
+      <div class="form-group"><label>License Status</label><select required><option value="" disabled selected>Select one...</option><option>Active License - Looking to Transfer</option><option>Active License - Parking Only</option><option>New Agent - Just Licensed</option><option>In Licensing School</option><option>Broker License</option></select></div>
+      <div class="form-group"><label>Path of Interest</label><select><option value="" disabled selected>Select one...</option><option>Individual Agent (100% Commission)</option><option>Team Leader</option><option>Broker</option><option>Park My License</option><option>Not Sure Yet</option></select></div>
+      <div class="form-group"><label>What's driving your interest? (Optional)</label><textarea placeholder="Tell us a bit about where you are and what you're looking for..."></textarea></div>
+      <button type="submit" class="btn-primary" style="width:100%;padding:16px;font-size:12px;">Request a Discovery Call</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="logo">inhabit<span style="color:var(--gold-light)">.</span> realty</div>
+  <p>(c) 2025 inhabit. realty. All rights reserved. Equal Housing Opportunity.<br>Not a solicitation for agents currently under contract with another brokerage.</p>
+</footer>
+
+<script>
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.textContent = 'Request Received - We will Be in Touch';
+    btn.style.background = '#2a5c3f'; btn.disabled = true;
+  }
+  const io = new IntersectionObserver(entries => entries.forEach(en => { if (en.isIntersecting) { en.target.style.opacity='1'; en.target.style.transform='translateY(0)'; } }), { threshold: 0.08 });
+  document.querySelectorAll('.path-card,.why-card,.step,.ramp-phase').forEach(el => { el.style.opacity='0'; el.style.transform='translateY(16px)'; el.style.transition='opacity 0.55s ease, transform 0.55s ease'; io.observe(el); });
+</script>
+</body>
+</html>

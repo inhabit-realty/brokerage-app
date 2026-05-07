@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Devon Park — inhabit.app</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="agent-shell.css">
+<style>
+  .pagebar{background:var(--white);border-bottom:1px solid var(--mist);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;}
+  .crumbs{display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--ash);letter-spacing:0.04em;}
+  .crumbs a:hover{color:var(--prussian);}
+  .crumbs .sep{opacity:0.4;}
+  .crumbs .here{color:var(--prussian);font-weight:500;}
+  .pagebar-actions{display:flex;align-items:center;gap:10px;}
+  .icon-btn{width:36px;height:36px;border:1px solid var(--mist);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ash);}
+  .icon-btn:hover{color:var(--prussian);border-color:var(--prussian);}
+  .person-nav{display:flex;align-items:center;gap:6px;border:1px solid var(--mist);padding:0 6px;height:36px;}
+  .person-nav button{background:transparent;border:none;color:var(--ash);width:24px;height:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .person-nav button:hover{color:var(--prussian);}
+  .person-nav span{font-size:11px;color:var(--ash);font-family:'DM Mono',monospace;letter-spacing:0;padding:0 6px;}
+  .person-nav strong{color:var(--prussian);font-weight:500;}
+  .btn-ghost{background:transparent;color:var(--prussian);padding:9px 14px;border:1px solid var(--mist);font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+  .btn-ghost:hover{border-color:var(--prussian);}
+  .btn-primary{background:var(--gold);color:var(--canvas);padding:10px 16px;border:none;font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+  .btn-primary:hover{background:var(--gold-light);}
+
+  .layout{display:grid;grid-template-columns:300px 1fr 320px;gap:0;background:var(--canvas);}
+  .col-left, .col-right{background:var(--white);border-right:1px solid var(--mist);}
+  .col-right{border-right:none;border-left:1px solid var(--mist);}
+  .col-mid{padding:22px 26px 60px;min-width:0;overflow-x:hidden;}
+
+  .id-block{padding:22px 22px 18px;border-bottom:1px solid var(--mist);}
+  .id-top{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+  .id-avatar{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg, var(--prussian3), var(--prussian));color:var(--canvas);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:600;font-size:20px;flex-shrink:0;border:2px solid var(--canvas);box-shadow:0 0 0 1px var(--mist);}
+  .id-name{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:500;color:var(--prussian);line-height:1.15;}
+  .id-meta{font-size:11px;color:var(--ash);margin-top:3px;display:flex;align-items:center;gap:8px;}
+  .id-meta .dot{width:6px;height:6px;border-radius:50%;background:var(--green);}
+  .id-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px;}
+  .tag{font-size:10px;letter-spacing:0.06em;padding:3px 8px;background:var(--canvas2);color:var(--prussian);font-weight:500;}
+  .tag.gold{background:var(--gold-pale);color:var(--gold);}
+  .id-contact{display:flex;flex-direction:column;gap:8px;font-size:12.5px;color:var(--prussian);}
+  .id-contact div{display:flex;align-items:center;gap:10px;}
+  .id-contact svg{color:var(--ash);flex-shrink:0;}
+  .id-contact a:hover{color:var(--gold);}
+
+  .meta-section{border-bottom:1px solid var(--mist);}
+  .meta-head{padding:14px 22px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+  .meta-head:hover{background:var(--canvas);}
+  .meta-head-l{display:flex;align-items:center;gap:10px;}
+  .meta-head svg.chev{color:var(--ash);}
+  .meta-title{font-size:10.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--prussian);font-weight:600;}
+  .meta-title small{color:var(--ash);font-weight:400;letter-spacing:0;text-transform:none;font-size:11.5px;margin-left:6px;}
+  .meta-body{padding:0 22px 18px;font-size:12.5px;color:var(--onyx);line-height:1.7;}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:12.5px;}
+  .kv dt{color:var(--ash);font-size:10.5px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;padding-top:2px;}
+  .kv dd{color:var(--onyx);}
+  .kv dd .num{color:var(--prussian);font-weight:500;}
+  .add-link{font-size:11px;color:var(--gold);font-weight:500;letter-spacing:0.06em;display:inline-flex;align-items:center;gap:6px;margin-top:6px;}
+  .add-link:hover{color:var(--prussian);}
+
+  .saved-search{padding:10px 0;border-bottom:1px dashed var(--canvas2);font-size:12.5px;}
+  .saved-search:last-child{border-bottom:none;}
+  .saved-search-name{color:var(--prussian);font-weight:500;}
+  .saved-search-criteria{font-size:11px;color:var(--ash);font-family:'DM Mono',monospace;margin-top:3px;letter-spacing:0;}
+  .saved-search-meta{font-size:10.5px;color:var(--ash);margin-top:3px;display:flex;justify-content:space-between;}
+
+  .composer{background:var(--white);border:1px solid var(--mist);margin-bottom:22px;}
+  .compose-tabs{display:flex;border-bottom:1px solid var(--mist);overflow-x:auto;}
+  .compose-tab{padding:14px 18px;font-size:12px;color:var(--ash);font-weight:500;letter-spacing:0.04em;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;gap:8px;border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+  .compose-tab svg{opacity:0.6;}
+  .compose-tab.active{color:var(--prussian);border-bottom-color:var(--gold);}
+  .compose-tab.active svg{opacity:1;color:var(--gold);}
+  .compose-tab:hover:not(.active){color:var(--prussian);}
+  .compose-tab.tab-listing{margin-left:auto;color:var(--gold);}
+  .compose-body{padding:18px 20px 14px;}
+  .compose-body textarea{width:100%;border:none;outline:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13.5px;color:var(--onyx);min-height:96px;resize:vertical;line-height:1.6;}
+  .compose-body textarea::placeholder{color:var(--ash);}
+  .compose-foot{padding:10px 20px 14px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--canvas2);}
+  .compose-hint{font-size:11px;color:var(--ash);}
+  .compose-hint code{font-family:'DM Mono',monospace;background:var(--canvas);color:var(--prussian);padding:1px 5px;}
+
+  .filter-bar{display:flex;align-items:center;gap:0;border:1px solid var(--mist);background:var(--white);margin-bottom:18px;overflow-x:auto;}
+  .filter-bar .fb{padding:11px 14px;font-size:12px;color:var(--ash);background:transparent;border:none;border-right:1px solid var(--mist);cursor:pointer;display:flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:0.02em;white-space:nowrap;}
+  .filter-bar .fb:last-child{border-right:none;}
+  .filter-bar .fb.active{color:var(--prussian);background:var(--canvas);}
+  .filter-bar .fb:hover:not(.active){color:var(--prussian);}
+  .filter-bar .fb .count{font-family:'DM Mono',monospace;font-size:10.5px;color:var(--ash);background:var(--canvas2);padding:1px 6px;letter-spacing:0;}
+  .filter-bar .fb.active .count{background:var(--prussian);color:var(--canvas);}
+  .filter-bar .fb.fb-filters{margin-left:auto;border-right:none;border-left:1px solid var(--mist);}
+
+  .timeline{position:relative;padding-left:22px;}
+  .timeline::before{content:'';position:absolute;left:7px;top:6px;bottom:6px;width:1px;background:var(--mist);}
+  .event{position:relative;background:var(--white);border:1px solid var(--mist);padding:14px 18px;margin-bottom:14px;}
+  .event::before{content:'';position:absolute;left:-22px;top:18px;width:14px;height:14px;border-radius:50%;background:var(--prussian);border:3px solid var(--canvas);}
+  .event.gold::before{background:var(--gold);}
+  .event.green::before{background:var(--green);}
+  .event-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:6px;}
+  .event-who{font-size:13px;color:var(--prussian);font-weight:500;}
+  .event-who .arr{color:var(--ash);font-weight:400;margin:0 4px;}
+  .event-meta{font-size:10.5px;color:var(--ash);font-family:'DM Mono',monospace;letter-spacing:0;text-align:right;flex-shrink:0;}
+  .event-kind{font-size:9.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:6px;}
+  .event-subj{font-size:13.5px;color:var(--onyx);font-weight:500;margin-bottom:5px;line-height:1.4;}
+  .event-body{font-size:12.5px;color:var(--ash);line-height:1.65;}
+  .event-link{font-size:11px;color:var(--gold);font-weight:500;letter-spacing:0.06em;display:inline-block;margin-top:8px;}
+  .event-link:hover{color:var(--prussian);}
+  .event-actions{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--canvas2);}
+  .event-act{font-size:11px;color:var(--ash);background:transparent;border:1px solid var(--mist);padding:5px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;display:inline-flex;align-items:center;gap:5px;}
+  .event-act:hover{color:var(--prussian);border-color:var(--prussian);}
+  .event.compact{padding:11px 18px;}
+  .event.compact .event-body{display:flex;justify-content:space-between;align-items:center;gap:14px;font-size:12.5px;color:var(--onyx);}
+
+  .rpanel{padding:18px 22px;border-bottom:1px solid var(--mist);}
+  .rpanel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .rpanel-title{font-size:10.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--prussian);font-weight:600;display:flex;align-items:center;gap:8px;}
+  .rpanel-title .count{font-family:'DM Mono',monospace;color:var(--ash);font-weight:400;letter-spacing:0;}
+  .rpanel-actions{display:flex;gap:5px;}
+  .add-btn{width:24px;height:24px;border:1px solid var(--mist);background:var(--white);color:var(--ash);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .add-btn:hover{color:var(--prussian);border-color:var(--prussian);}
+
+  .plan{padding:11px 12px;border:1px solid var(--mist);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .plan-name{font-size:12.5px;color:var(--prussian);font-weight:500;}
+  .plan-sub{font-size:10.5px;color:var(--ash);margin-top:2px;font-family:'DM Mono',monospace;letter-spacing:0;}
+  .running-pill{font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;background:var(--gold-pale);color:var(--gold);padding:3px 8px;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
+  .running-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 1.6s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+  .completed-link{font-size:10.5px;color:var(--ash);letter-spacing:0.04em;}
+
+  .deal-card{padding:12px;border:1px solid var(--mist);background:var(--canvas);}
+  .deal-name{font-size:12.5px;color:var(--prussian);font-weight:500;margin-bottom:4px;}
+  .deal-meta{font-size:10.5px;color:var(--ash);font-family:'DM Mono',monospace;letter-spacing:0;line-height:1.6;}
+  .deal-meta .num{color:var(--prussian);}
+  .deal-link{font-size:10.5px;color:var(--gold);letter-spacing:0.08em;text-transform:uppercase;font-weight:500;display:inline-flex;align-items:center;gap:5px;margin-top:8px;}
+
+  .appt{padding:11px 12px;border:1px solid var(--mist);margin-bottom:8px;}
+  .appt-when{font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:4px;}
+  .appt-title{font-size:12.5px;color:var(--prussian);font-weight:500;line-height:1.4;}
+  .appt-meta{font-size:10.5px;color:var(--ash);margin-top:3px;font-family:'DM Mono',monospace;letter-spacing:0;}
+
+  .task-row{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--canvas2);align-items:flex-start;}
+  .task-row:last-child{border-bottom:none;}
+  .checkbox{width:14px;height:14px;border:1.5px solid var(--mist);background:var(--white);cursor:pointer;flex-shrink:0;margin-top:2px;}
+  .checkbox:hover{border-color:var(--prussian);}
+  .task-text{font-size:12.5px;color:var(--onyx);line-height:1.45;}
+  .task-due{font-size:10.5px;color:var(--ash);font-family:'DM Mono',monospace;letter-spacing:0;margin-top:3px;display:flex;gap:8px;align-items:center;}
+  .task-due svg{opacity:0.6;}
+  .task-due.urgent{color:var(--rust);}
+
+  .mcp-mini{padding:18px 22px;background:var(--prussian);color:var(--canvas);border-left:3px solid var(--gold-light);}
+  .mcp-mini .lbl{font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-light);font-weight:600;margin-bottom:6px;}
+  .mcp-mini h4{font-family:'Playfair Display',serif;font-size:1rem;font-weight:500;margin-bottom:6px;}
+  .mcp-mini p{font-size:11.5px;color:rgba(248,246,242,0.55);line-height:1.6;}
+  .mcp-mini code{font-family:'DM Mono',monospace;background:rgba(255,255,255,0.06);padding:1px 5px;color:var(--gold-light);}
+
+  @media(max-width:1300px){.layout{grid-template-columns:280px 1fr 300px;}}
+  @media(max-width:1100px){.layout{grid-template-columns:1fr;} .col-left, .col-right{border:none;border-bottom:1px solid var(--mist);}}
+</style>
+</head>
+<body>
+
+<div data-topnav data-page="contacts"></div>
+
+<header class="pagebar">
+  <div class="crumbs">
+    <a href="agent-contacts.html">Contacts</a>
+    <span class="sep">/</span>
+    <a href="#">Sellers</a>
+    <span class="sep">/</span>
+    <span class="here">Devon Park</span>
+  </div>
+  <div class="pagebar-actions">
+    <div class="person-nav">
+      <button title="Previous"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span><strong class="num">47</strong> of <span class="num">312</span></span>
+      <button title="Next"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+    <button class="btn-ghost"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>Save view</button>
+    <button class="btn-primary"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>New activity</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <aside class="col-left">
+    <div class="id-block">
+      <div class="id-top">
+        <div class="id-avatar">DP</div>
+        <div>
+          <div class="id-name">Devon Park</div>
+          <div class="id-meta"><span class="dot"></span>Last contact <span class="num" style="color:var(--prussian);">2 d</span> ago &middot; SMS</div>
+          <div class="id-tags">
+            <span class="tag">Seller</span>
+            <span class="tag">Coral Gables</span>
+            <span class="tag gold">Active Listing</span>
+          </div>
+        </div>
+      </div>
+      <div class="id-contact">
+        <div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13 1 .35 1.97.66 2.9a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.18-1.18a2 2 0 012.11-.45c.93.31 1.9.53 2.9.66A2 2 0 0122 16.92z"/></svg><a href="tel:5615552847" class="num">(561) 555-2847</a></div>
+        <div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v16H4zM4 4l8 8 8-8"/></svg><a href="mailto:devon.park@gmail.com">devon.park@gmail.com</a></div>
+        <div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l9-8 9 8M5 9v11a1 1 0 001 1h12a1 1 0 001-1V9"/></svg><a href="#">4827 Bayshore Dr<br>Coral Gables, FL 33133</a></div>
+      </div>
+    </div>
+
+    <section class="meta-section">
+      <div class="meta-head"><div class="meta-head-l"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 21v-7a2 2 0 012-2h10a2 2 0 012 2v7M9 7a3 3 0 116 0 3 3 0 01-6 0z"/></svg><span class="meta-title">Relationships</span></div><svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="meta-body">
+        <div style="display:flex;align-items:center;gap:10px;font-size:12.5px;">
+          <div class="id-avatar" style="width:30px;height:30px;font-size:11px;">EP</div>
+          <div><div style="color:var(--prussian);font-weight:500;">Elise Park</div><div style="font-size:10.5px;color:var(--ash);font-family:'DM Mono',monospace;letter-spacing:0;">Spouse</div></div>
+        </div>
+        <a class="add-link" href="#">+ Add relationship</a>
+      </div>
+    </section>
+
+    <section class="meta-section">
+      <div class="meta-head"><div class="meta-head-l"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg><span class="meta-title">Background</span></div><svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="meta-body">Past client (2021 buy-side &middot; 4827 Bayshore). Two kids, one dog. Considering a Hardee Road move-up after this listing closes &mdash; not advertised. Prefers texts after 6 PM.</div>
+    </section>
+
+    <section class="meta-section">
+      <div class="meta-head"><div class="meta-head-l"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9 10h6M9 14h6"/></svg><span class="meta-title">Listing Details</span></div><svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="meta-body">
+        <dl class="kv">
+          <dt>Stage</dt><dd>Active Listing</dd>
+          <dt>Assigned</dt><dd>James Meyer</dd>
+          <dt>Source</dt><dd>Past Client &middot; <span class="num" style="color:var(--ash);font-size:11px;">2021</span></dd>
+          <dt>List Price</dt><dd><span class="num">$1,425,000</span></dd>
+          <dt>Listing</dt><dd><a href="agent-my-listings.html" style="color:var(--gold);">4827 Bayshore Dr</a></dd>
+          <dt>MLS</dt><dd><span class="num">A11459003</span></dd>
+          <dt>Timeframe</dt><dd>List by May 12 &middot; close target Jul 15</dd>
+        </dl>
+      </div>
+    </section>
+
+    <section class="meta-section">
+      <div class="meta-head"><div class="meta-head-l"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg><span class="meta-title">Saved Searches <small>2</small></span></div><svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="meta-body">
+        <div class="saved-search">
+          <div class="saved-search-name">Hardee Road move-up</div>
+          <div class="saved-search-criteria">4-5 BR · $1.5-2.0M · pool · Coral Gables 33146</div>
+          <div class="saved-search-meta"><span>3 new this week</span><span class="num">via Listing Data</span></div>
+        </div>
+        <div class="saved-search">
+          <div class="saved-search-name">Comp set &mdash; Bayshore</div>
+          <div class="saved-search-criteria">Closed 90d · $1.2-1.6M · Coral Gables 33133</div>
+          <div class="saved-search-meta"><span>12 comps</span><span class="num">via Listing Data</span></div>
+        </div>
+        <a class="add-link" href="agent-search.html">+ New saved search</a>
+      </div>
+    </section>
+
+    <section class="meta-section">
+      <div class="meta-head"><div class="meta-head-l"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg><span class="meta-title">Tags</span></div><svg class="chev" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+      <div class="meta-body">
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+          <span class="tag">33133</span>
+          <span class="tag">past-client</span>
+          <span class="tag">referrer</span>
+          <span class="tag">repeat</span>
+          <a class="add-link" href="#" style="margin:0;">+ tag</a>
+        </div>
+      </div>
+    </section>
+  </aside>
+
+  <section class="col-mid">
+
+    <div class="composer">
+      <div class="compose-tabs">
+        <button class="compose-tab active"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Note</button>
+        <button class="compose-tab"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v16H4zM4 4l8 8 8-8"/></svg>Email</button>
+        <button class="compose-tab"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Text</button>
+        <button class="compose-tab"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13 1 .35 1.97.66 2.9a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.18-1.18a2 2 0 012.11-.45c.93.31 1.9.53 2.9.66A2 2 0 0122 16.92z"/></svg>Log Call</button>
+        <button class="compose-tab"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="16"/><path d="M3 10h18M8 4v4M16 4v4"/></svg>Schedule</button>
+        <button class="compose-tab tab-listing"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 12V7a2 2 0 00-2-2H6a2 2 0 00-2 2v5l8 9 8-9zM12 11h.01"/></svg>Send Listing</button>
+      </div>
+      <div class="compose-body"><textarea placeholder="Add a note. @mention to notify a teammate."></textarea></div>
+      <div class="compose-foot">
+        <span class="compose-hint">Notes are private to your team. Use <code>@name</code> to notify.</span>
+        <button class="btn-primary">Save note</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="fb active">All <span class="count num">42</span></button>
+      <button class="fb"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v16H4zM4 4l8 8 8-8"/></svg><span class="count num">14</span></button>
+      <button class="fb"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><span class="count num">9</span></button>
+      <button class="fb"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.13 1 .35 1.97.66 2.9a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.18-1.18a2 2 0 012.11-.45c.93.31 1.9.53 2.9.66A2 2 0 0122 16.92z"/></svg><span class="count num">5</span></button>
+      <button class="fb"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg><span class="count num">8</span></button>
+      <button class="fb"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="16"/><path d="M3 10h18M8 4v4M16 4v4"/></svg><span class="count num">3</span></button>
+      <button class="fb"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 12V7a2 2 0 00-2-2H6a2 2 0 00-2 2v5l8 9 8-9z"/></svg><span class="count num">3</span></button>
+      <button class="fb fb-filters"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 6h18M6 12h12M10 18h4"/></svg>Filters</button>
+    </div>
+
+    <div class="timeline">
+      <article class="event gold">
+        <div class="event-head"><div class="event-who">Devon Park <span class="arr">opened</span> <span style="color:var(--ash);font-weight:400;">Cloud CMA report</span></div><div class="event-meta">Today &middot; 9:42 AM</div></div>
+        <div class="event-kind">CMA Engagement</div>
+        <div class="event-body">Opened twice. Most time on <strong>page 4 &mdash; comps summary</strong> (3 min 14 s).</div>
+        <a class="event-link" href="#">Open report &rsaquo;</a>
+      </article>
+
+      <article class="event">
+        <div class="event-head"><div class="event-who">James Meyer <span class="arr">&rarr;</span> Devon Park</div><div class="event-meta">Yesterday &middot; 6:18 PM</div></div>
+        <div class="event-kind">SMS Sent</div>
+        <div class="event-body">Confirming Saturday open house 11&ndash;1, photographer arrives at 9. Will text final guidelines tonight. Let me know if Elise wants to keep the rugs in for the shoot.</div>
+        <div class="event-actions">
+          <button class="event-act"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 17l-5-5 5-5M4 12h16"/></svg>Reply</button>
+          <button class="event-act"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>More</button>
+        </div>
+      </article>
+
+      <article class="event compact green">
+        <div class="event-body">
+          <div><strong style="color:var(--prussian);font-weight:500;">Listing 4827 Bayshore Drive</strong> set to <strong style="color:var(--gold);">Coming Soon</strong> on Listing Data.</div>
+          <div class="event-meta" style="text-align:right;">2 d ago<br><span style="color:var(--gold);">via inhabit.</span></div>
+        </div>
+      </article>
+
+      <article class="event">
+        <div class="event-head"><div class="event-who">James Meyer <span class="arr">&rarr;</span> Devon Park</div><div class="event-meta">3 d ago &middot; 11:04 AM</div></div>
+        <div class="event-kind">Email Sent &middot; Pre-listing checklist</div>
+        <div class="event-subj">Final pre-listing checklist &mdash; Bayshore</div>
+        <div class="event-body">Devon, attached is the final checklist before we go live: photographer Saturday 9 AM, sign install Sunday, MLS submission Monday. Let me know about the rug question and any showings to block off in the next two weeks&hellip;</div>
+        <a class="event-link" href="#">View full email &middot; opened twice &rsaquo;</a>
+      </article>
+
+      <article class="event compact">
+        <div class="event-body">
+          <div>Action plan <strong style="color:var(--prussian);font-weight:500;">Seller &mdash; Active Listing 60 Days</strong> started.</div>
+          <div class="event-meta">2 wk ago &middot; auto</div>
+        </div>
+      </article>
+
+      <article class="event">
+        <div class="event-head"><div class="event-who">James Meyer</div><div class="event-meta">3 wk ago &middot; 4:22 PM</div></div>
+        <div class="event-kind">Note</div>
+        <div class="event-body">Walkthrough done. Discussed competing offer story on Hardee Road during pricing chat &mdash; Devon receptive to coming-soon strategy if it adds 2-3% upside. Elise more cautious. Following up with comp pull and timing memo by Friday.</div>
+      </article>
+
+      <article class="event compact">
+        <div class="event-body">
+          <div><strong style="color:var(--prussian);font-weight:500;">Call &mdash; 8 min</strong> &middot; pre-listing pricing strategy</div>
+          <div class="event-meta">4 wk ago</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <aside class="col-right">
+    <section class="rpanel">
+      <div class="rpanel-head">
+        <div class="rpanel-title">Action Plans <span class="count num">2</span></div>
+        <div class="rpanel-actions"><button class="add-btn"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button></div>
+      </div>
+      <div class="plan"><div><div class="plan-name">Seller &mdash; Active Listing 60d</div><div class="plan-sub">Day 14 of 60 &middot; 8 of 22 sent</div></div><span class="running-pill">Running</span></div>
+      <div class="plan"><div><div class="plan-name">Past Client &mdash; Annual Touch</div><div class="plan-sub">Day 124 of 365 &middot; 4 of 12 sent</div></div><span class="running-pill">Running</span></div>
+      <a class="completed-link" href="#">View 1 completed &rsaquo;</a>
+    </section>
+
+    <section class="rpanel">
+      <div class="rpanel-head"><div class="rpanel-title">Deal</div><div class="rpanel-actions"><button class="add-btn"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button></div></div>
+      <div class="deal-card">
+        <div class="deal-name">4827 Bayshore Drive &middot; Sell</div>
+        <div class="deal-meta">List <span class="num">$1,425,000</span> &middot; Coming Soon<br>Commission <span class="num">3.0%</span> &middot; est. <span class="num">$42,750</span><br>Close target <span class="num">2026-07-15</span></div>
+        <a class="deal-link" href="#">Open in SkySlope <span class="num" style="opacity:0.7;letter-spacing:0;">SK&middot;4827BAYSH</span> &rsaquo;</a>
+      </div>
+    </section>
+
+    <section class="rpanel">
+      <div class="rpanel-head"><div class="rpanel-title">Appointments <span class="count num">2</span></div><div class="rpanel-actions"><button class="add-btn"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button></div></div>
+      <div class="appt"><div class="appt-when">Sat May 9 &middot; 11:00 AM</div><div class="appt-title">Open House &mdash; 4827 Bayshore</div><div class="appt-meta">2 hrs &middot; 4 RSVPs &middot; ShowingTime</div></div>
+      <div class="appt"><div class="appt-when">Tue May 12 &middot; 3:30 PM</div><div class="appt-title">Pricing review &mdash; Devon &amp; Elise</div><div class="appt-meta">30 min &middot; in-person &middot; 4827 Bayshore</div></div>
+    </section>
+
+    <section class="rpanel">
+      <div class="rpanel-head">
+        <div class="rpanel-title">Tasks <span class="count num">4</span></div>
+        <div class="rpanel-actions"><button class="add-btn" title="Run via Claude"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></button><button class="add-btn"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></button></div>
+      </div>
+      <div class="task-row"><div class="checkbox"></div><div><div class="task-text">Send updated comps to Devon</div><div class="task-due urgent"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Today &middot; 11:30 AM</div></div></div>
+      <div class="task-row"><div class="checkbox"></div><div><div class="task-text">Confirm Saturday open house guidelines</div><div class="task-due"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Today &middot; EOD</div></div></div>
+      <div class="task-row"><div class="checkbox"></div><div><div class="task-text">Set up Hardee Road saved search alerts</div><div class="task-due"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>May 9</div></div></div>
+      <div class="task-row"><div class="checkbox"></div><div><div class="task-text">"Open house recap" follow-up template</div><div class="task-due"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>May 11</div></div></div>
+    </section>
+
+    <div class="mcp-mini">
+      <div class="lbl">Coming soon</div>
+      <h4>Run this contact through Claude.</h4>
+      <p>Ask anything &mdash; "draft a follow-up note", "pull comp set within 0.5 mi", "summarize the last 30 days" &mdash; via the inhabit. MCP. Tools wired to <code>contact 47</code>.</p>
+    </div>
+  </aside>
+
+</div>
+
+<script src="agent-shell.js"></script>
+</body>
+</html>

@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Follow Up Boss — Full API Integration Map · inhabit. realty</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --prussian:   #1A3044;
+    --prussian2:  #122233;
+    --prussian3:  #1e3d56;
+    --onyx:       #1A1A1A;
+    --canvas:     #F8F6F2;
+    --canvas2:    #EDE9E2;
+    --gold:       #8A6500;
+    --gold-light: #C4922A;
+    --gold-pale:  #F0DFA8;
+    --mist:       #D8D2C8;
+    --ash:        #6A6460;
+    --white:      #FFFFFF;
+    --get:    #1a5c3a;
+    --get-bg: #d4edda;
+    --post:   #1a3a8a;
+    --post-bg:#d4dff5;
+    --put:    #7a4a00;
+    --put-bg: #fde8b0;
+    --del:    #7a1a1a;
+    --del-bg: #f5d4d4;
+    --live:    #1a5c3a;
+    --live-bg: #d4edda;
+    --setup:   #7a4a00;
+    --setup-bg:#fde8b0;
+    --plan:    #6A6460;
+    --plan-bg: #EDE9E2;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; font-weight: 300; background: var(--canvas); color: var(--onyx); overflow-x: hidden; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 200;
+    background: var(--prussian2);
+    height: 52px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px; border-bottom: 1px solid rgba(196,146,42,0.25);
+  }
+  .topbar-left { display: flex; align-items: center; gap: 20px; }
+  .logo { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 600; color: var(--canvas); }
+  .logo span { color: var(--gold-light); font-style: italic; }
+  .topbar-sep { width: 1px; height: 20px; background: rgba(196,146,42,0.2); }
+  .topbar-title { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(248,246,242,0.5); }
+  .topbar-badge { background: rgba(196,146,42,0.15); border: 1px solid rgba(196,146,42,0.3); color: var(--gold-light); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 10px; border-radius: 2px; font-weight: 500; }
+
+  .layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+
+  .sidebar {
+    background: var(--prussian); border-right: 1px solid rgba(196,146,42,0.12);
+    padding: 28px 0; position: sticky; top: 52px; height: calc(100vh - 52px); overflow-y: auto;
+  }
+  .sidebar::-webkit-scrollbar { width: 3px; }
+  .sidebar::-webkit-scrollbar-thumb { background: rgba(196,146,42,0.2); }
+  .sidebar-section { margin-bottom: 4px; }
+  .sidebar-heading {
+    font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(196,146,42,0.6); font-weight: 600; padding: 14px 20px 6px;
+  }
+  .sidebar-link {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 20px; font-size: 12px; color: rgba(248,246,242,0.55);
+    text-decoration: none; cursor: pointer; transition: all 0.15s;
+    border-left: 2px solid transparent;
+  }
+  .sidebar-link:hover, .sidebar-link.active {
+    background: rgba(248,246,242,0.06); color: var(--canvas);
+    border-left-color: var(--gold-light);
+  }
+  .sidebar-count {
+    margin-left: auto; background: rgba(196,146,42,0.15);
+    color: var(--gold-light); font-size: 9px; font-family: 'DM Mono', monospace;
+    padding: 1px 6px; border-radius: 8px;
+  }
+
+  .main { padding: 0; }
+
+  .hero-block {
+    background: var(--prussian); padding: 48px 48px 0;
+    border-bottom: 1px solid rgba(196,146,42,0.15);
+  }
+  .hero-eyebrow {
+    font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--gold-light); font-weight: 500; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-eyebrow::before { content: ''; width: 20px; height: 1px; background: var(--gold-light); }
+  .hero-block h1 {
+    font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 400;
+    color: var(--canvas); line-height: 1.1; margin-bottom: 12px;
+  }
+  .hero-block p { font-size: 13px; line-height: 1.8; color: rgba(248,246,242,0.6); max-width: 600px; margin-bottom: 32px; }
+
+  .stats-row { display: flex; gap: 0; border-top: 1px solid rgba(196,146,42,0.15); }
+  .stat-cell { padding: 18px 28px; border-right: 1px solid rgba(196,146,42,0.12); }
+  .stat-cell:last-child { border-right: none; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--gold-light); line-height: 1; }
+  .stat-label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(248,246,242,0.4); margin-top: 3px; }
+
+  .content-section { padding: 40px 48px; border-bottom: 1px solid var(--mist); }
+  .content-section:last-child { border-bottom: none; }
+
+  .section-head { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+  .section-icon { width: 36px; height: 36px; background: var(--prussian); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .section-head h2 {
+    font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 600; color: var(--prussian);
+  }
+  .section-head p { font-size: 12px; color: var(--ash); margin-top: 2px; }
+  .section-tag { margin-left: auto; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 12px; border-radius: 2px; font-weight: 500; white-space: nowrap; }
+  .tag-live { background: var(--live-bg); color: var(--live); }
+  .tag-setup { background: var(--setup-bg); color: var(--setup); }
+  .tag-plan { background: var(--plan-bg); color: var(--plan); }
+
+  .auth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .auth-card { background: var(--white); border: 1px solid var(--mist); padding: 24px; }
+  .auth-card-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--prussian); margin-bottom: 8px; }
+  .auth-card-desc { font-size: 12px; line-height: 1.7; color: var(--ash); margin-bottom: 14px; }
+  .code-block {
+    background: var(--prussian2); border-radius: 3px; padding: 14px 16px;
+    font-family: 'DM Mono', monospace; font-size: 11px; line-height: 1.7;
+    color: rgba(248,246,242,0.75); overflow-x: auto;
+  }
+  .code-block .cm { color: rgba(196,146,42,0.6); }
+  .code-block .kw { color: #7dd3fc; }
+  .code-block .st { color: #86efac; }
+  .code-block .vr { color: #fda4af; }
+  .code-block .nu { color: #f0abfc; }
+
+  .endpoint-group { margin-bottom: 28px; }
+  .endpoint-group-title {
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); font-weight: 600; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .endpoint-group-title::after { content: ''; flex: 1; height: 1px; background: var(--mist); }
+
+  .endpoint-table { width: 100%; border-collapse: collapse; border: 1px solid var(--mist); }
+  .endpoint-table th {
+    background: var(--canvas2); font-size: 9px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--ash); font-weight: 600;
+    padding: 9px 14px; text-align: left; border-bottom: 1px solid var(--mist);
+  }
+  .endpoint-table td { padding: 10px 14px; border-bottom: 1px solid rgba(216,210,200,0.5); vertical-align: top; }
+  .endpoint-table tr:last-child td { border-bottom: none; }
+  .endpoint-table tr:hover td { background: rgba(26,48,68,0.025); }
+
+  .method {
+    font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500;
+    padding: 2px 8px; border-radius: 2px; letter-spacing: 0.06em; white-space: nowrap;
+  }
+  .method-get  { background: var(--get-bg);  color: var(--get); }
+  .method-post { background: var(--post-bg); color: var(--post); }
+  .method-put  { background: var(--put-bg);  color: var(--put); }
+  .method-del  { background: var(--del-bg);  color: var(--del); }
+
+  .endpoint-path { font-family: 'DM Mono', monospace; font-size: 11.5px; color: var(--prussian); }
+  .endpoint-desc { font-size: 12px; color: var(--ash); }
+  .endpoint-portal { font-size: 11px; color: var(--gold); font-weight: 500; }
+
+  .webhook-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .webhook-card { background: var(--white); border: 1px solid var(--mist); padding: 16px 18px; border-top: 2px solid var(--prussian); }
+  .webhook-event { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--prussian); font-weight: 500; margin-bottom: 5px; }
+  .webhook-desc { font-size: 11.5px; color: var(--ash); line-height: 1.6; }
+  .webhook-portal { font-size: 10.5px; color: var(--gold); margin-top: 6px; }
+
+  .flow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 16px 0; }
+  .flow-box {
+    background: var(--white); border: 1px solid var(--mist); padding: 10px 16px;
+    font-size: 11.5px; font-weight: 500; color: var(--prussian); white-space: nowrap;
+  }
+  .flow-box.highlight { background: var(--prussian); color: var(--canvas); border-color: var(--prussian); }
+  .flow-box.gold { background: var(--gold-pale); border-color: var(--gold); color: var(--gold); }
+  .flow-arrow { padding: 0 8px; color: var(--gold-light); font-size: 16px; }
+
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field-card { background: var(--white); border: 1px solid var(--mist); padding: 20px; }
+  .field-card-title { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 12px; }
+  .field-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--canvas2); gap: 12px; }
+  .field-row:last-child { border-bottom: none; }
+  .field-name { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--prussian); }
+  .field-type { font-size: 10px; color: var(--ash); }
+  .field-note { font-size: 10.5px; color: var(--gold); font-style: italic; }
+
+  .limits-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .limit-card { background: var(--prussian); padding: 20px; text-align: center; }
+  .limit-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--gold-light); line-height: 1; }
+  .limit-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(248,246,242,0.45); margin-top: 5px; }
+  .limit-note { font-size: 11px; color: rgba(248,246,242,0.35); margin-top: 4px; }
+
+  .portal-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--mist); border: 1px solid var(--mist); }
+  .portal-feature { background: var(--white); padding: 20px 22px; }
+  .portal-feature-icon { font-size: 20px; margin-bottom: 10px; }
+  .portal-feature-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--prussian); margin-bottom: 6px; }
+  .portal-feature-apis { display: flex; flex-wrap: wrap; gap: 4px; }
+  .api-chip {
+    font-family: 'DM Mono', monospace; font-size: 9.5px;
+    background: var(--canvas2); border: 1px solid var(--mist);
+    color: var(--ash); padding: 2px 7px; border-radius: 2px;
+  }
+
+  .mcp-block { background: var(--prussian2); padding: 32px; border: 1px solid rgba(196,146,42,0.15); }
+  .mcp-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--canvas); margin-bottom: 8px; }
+  .mcp-desc { font-size: 12.5px; color: rgba(248,246,242,0.6); line-height: 1.75; margin-bottom: 24px; max-width: 640px; }
+  .mcp-tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .mcp-tool { background: rgba(248,246,242,0.04); border: 1px solid rgba(196,146,42,0.15); padding: 14px 16px; }
+  .mcp-tool-name { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--gold-light); margin-bottom: 4px; }
+  .mcp-tool-desc { font-size: 11px; color: rgba(248,246,242,0.45); line-height: 1.6; }
+
+  .callout { display: flex; gap: 14px; padding: 16px 18px; border-radius: 2px; margin: 16px 0; font-size: 12.5px; line-height: 1.7; }
+  .callout.info { background: rgba(26,48,68,0.07); border-left: 3px solid var(--prussian); color: var(--prussian); }
+  .callout.warn { background: #fef9ec; border-left: 3px solid var(--gold); color: #5a4200; }
+  .callout.tip  { background: #ecf5ee; border-left: 3px solid var(--live); color: var(--live); }
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: relative; height: auto; top: auto; display: none; }
+    .content-section { padding: 28px 20px; }
+    .hero-block { padding: 28px 20px 0; }
+    .auth-grid, .field-grid { grid-template-columns: 1fr; }
+    .webhook-grid { grid-template-columns: 1fr 1fr; }
+    .portal-features { grid-template-columns: 1fr; }
+    .limits-grid { grid-template-columns: 1fr 1fr; }
+    .mcp-tools { grid-template-columns: 1fr 1fr; }
+    .stats-row { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">inhabit<span>.</span></div>
+    <div class="topbar-sep"></div>
+    <div class="topbar-title">Follow Up Boss · Full API Integration</div>
+  </div>
+  <div class="topbar-badge">v1 API · REST · OAuth 2.0</div>
+</div>
+
+<div class="layout">
+
+<nav class="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-heading">Overview</div>
+    <a class="sidebar-link active" onclick="scrollToId('auth')">Authentication</a>
+    <a class="sidebar-link" onclick="scrollToId('portal-map')">Portal Feature Map</a>
+    <a class="sidebar-link" onclick="scrollToId('rate-limits')">Rate Limits</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-heading">Core Resources</div>
+    <a class="sidebar-link" onclick="scrollToId('people')">People <span class="sidebar-count">9</span></a>
+    <a class="sidebar-link" onclick="scrollToId('events')">Events <span class="sidebar-count">3</span></a>
+    <a class="sidebar-link" onclick="scrollToId('notes')">Notes / Calls / Texts</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-heading">Workflow</div>
+    <a class="sidebar-link" onclick="scrollToId('tasks')">Tasks &amp; Appointments</a>
+    <a class="sidebar-link" onclick="scrollToId('action-plans')">Action Plans &amp; Automations</a>
+    <a class="sidebar-link" onclick="scrollToId('email-marketing')">Email &amp; Marketing</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-heading">Configuration</div>
+    <a class="sidebar-link" onclick="scrollToId('stages')">Stages / Lists / Custom Fields</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-heading">Real-Time</div>
+    <a class="sidebar-link" onclick="scrollToId('webhooks')">Webhooks <span class="sidebar-count">12</span></a>
+    <a class="sidebar-link" onclick="scrollToId('mcp')">MCP Tools</a>
+  </div>
+</nav>
+
+<main class="main">
+
+  <div class="hero-block">
+    <div class="hero-eyebrow">Technical Reference</div>
+    <h1>Follow Up Boss<br>Full API Integration</h1>
+    <p>Every endpoint, webhook, field map, and MCP tool needed to deeply integrate Follow Up Boss into the inhabit. agent portal. Auth, all 60+ endpoints across 14 resource groups, real-time webhooks, and AI control via MCP.</p>
+    <div class="stats-row">
+      <div class="stat-cell"><div class="stat-num">60+</div><div class="stat-label">API Endpoints</div></div>
+      <div class="stat-cell"><div class="stat-num">14</div><div class="stat-label">Resource Groups</div></div>
+      <div class="stat-cell"><div class="stat-num">12</div><div class="stat-label">Webhook Events</div></div>
+      <div class="stat-cell"><div class="stat-num">2</div><div class="stat-label">Auth Methods</div></div>
+      <div class="stat-cell"><div class="stat-num">500</div><div class="stat-label">Req/min Rate Limit</div></div>
+    </div>
+  </div>
+
+  <div class="content-section" id="auth">
+    <div class="section-head">
+      <div class="section-icon">A</div>
+      <div>
+        <h2>Authentication</h2>
+        <p>API Key for agent-level access, OAuth 2.0 for multi-user portal auth</p>
+      </div>
+      <span class="section-tag tag-live">Required First</span>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">i</span>
+      The portal will use <strong>OAuth 2.0</strong> so each agent authenticates with their own FUB account. Register your system at docs.followupboss.com and include <code>X-System</code> and <code>X-System-Key</code> headers in every request.
+    </div>
+
+    <div class="auth-grid">
+      <div class="auth-card">
+        <div class="auth-card-title">API Key (Per-Agent)</div>
+        <div class="auth-card-desc">Each FUB user has a unique API key under Admin &rarr; API. Used for server-side integrations. Pass as HTTP Basic Auth username with blank password.</div>
+        <div class="code-block"><span class="cm"># Every request must include system headers</span>
+<span class="kw">GET</span> https://api.followupboss.com/v1/people
+<span class="vr">Authorization:</span> Basic base64(<span class="st">"API_KEY:"</span>)
+<span class="vr">X-System:</span> <span class="st">"InhabitPortal"</span>
+<span class="vr">X-System-Key:</span> <span class="st">"your_system_key"</span></div>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-card-title">OAuth 2.0 (Portal Standard)</div>
+        <div class="auth-card-desc">Recommended for the PWA. Agents click "Connect FUB", redirected to FUB consent screen, return with auth code, exchange for access + refresh tokens.</div>
+        <div class="code-block"><span class="cm"># Step 1 redirect to consent</span>
+GET https://app.followupboss.com/oauth/authorize
+  ?response_type=auth_code
+  &client_id=<span class="st">YOUR_CLIENT_ID</span>
+  &redirect_uri=<span class="st">https://portal.inhabit.com/auth/fub</span>
+
+<span class="cm"># Step 2 exchange code</span>
+POST https://app.followupboss.com/oauth/token
+  grant_type=authorization_code
+  &code=<span class="vr">{auth_code}</span>
+
+<span class="cm"># Step 3 refresh</span>
+POST https://app.followupboss.com/oauth/token
+  grant_type=refresh_token
+  &refresh_token=<span class="vr">{token}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-section" id="portal-map">
+    <div class="section-head">
+      <div class="section-icon">M</div>
+      <div><h2>Portal Feature -> API Map</h2><p>Which FUB endpoints power each section of the agent portal</p></div>
+    </div>
+    <div class="portal-features">
+      <div class="portal-feature">
+        <div class="portal-feature-title">Contact / CRM View</div>
+        <div class="portal-feature-apis">
+          <span class="api-chip">/people GET/POST/PUT</span>
+          <span class="api-chip">/people/:id GET</span>
+          <span class="api-chip">/people/checkDuplicate</span>
+          <span class="api-chip">/stages GET</span>
+          <span class="api-chip">/customFields GET</span>
+        </div>
+      </div>
+      <div class="portal-feature">
+        <div class="portal-feature-title">Lead Capture (MLS VOW)</div>
+        <div class="portal-feature-apis">
+          <span class="api-chip">/events POST</span>
+          <span class="api-chip">/people POST</span>
+          <span class="api-chip">/actionPlansPeople POST</span>
+        </div>
+      </div>
+      <div class="portal-feature">
+        <div class="portal-feature-title">Activity Timeline</div>
+        <div class="portal-feature-apis">
+          <span class="api-chip">/notes GET/POST/PUT</span>
+          <span class="api-chip">/calls GET</span>
+          <span class="api-chip">/textMessages GET</span>
+          <span class="api-chip">/events GET</span>
+          <span class="api-chip">/appointments GET</span>
+        </div>
+      </div>
+      <div class="portal-feature">
+        <div class="portal-feature-title">Task Manager</div>
+        <div class="portal-feature-apis">
+          <span class="api-chip">/tasks GET/POST/PUT/DEL</span>
+          <span class="api-chip">/appointments GET/POST</span>
+          <span class="api-chip">/actionPlansPeople GET</span>
+        </div>
+      </div>
+      <div class="portal-feature">
+        <div class="portal-feature-title">Email &amp; Marketing</div>
+        <div class="portal-feature-apis">
+          <span class="api-chip">/emCampaigns GET/POST</span>
+          <span class="api-chip">/emEvents GET/POST</span>
+          <span class="api-chip">/templates GET/POST</span>
+          <span class="api-chip">/textMessageTemplates</span>
+        </div>
+      </div>
+      <div class="portal-feature">
+        <div class="portal-feature-title">Automation Control</div>
+        <div class="portal-feature-apis">
+          <span class="api-chip">/automations GET</span>
+          <span class="api-chip">/automationsPeople GET/POST</span>
+          <span class="api-chip">/actionPlans GET</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-section" id="rate-limits">
+    <div class="section-head">
+      <div class="section-icon">R</div>
+      <div><h2>Rate Limits &amp; Pagination</h2><p>Constraints to design around</p></div>
+    </div>
+    <div class="limits-grid">
+      <div class="limit-card"><div class="limit-num">500</div><div class="limit-label">Requests / min</div><div class="limit-note">Per API key</div></div>
+      <div class="limit-card"><div class="limit-num">100</div><div class="limit-label">Max per page</div><div class="limit-note">Default 25</div></div>
+      <div class="limit-card"><div class="limit-num">429</div><div class="limit-label">Rate limit code</div><div class="limit-note">Retry-After header</div></div>
+      <div class="limit-card"><div class="limit-num">5x</div><div class="limit-label">Webhook retries</div><div class="limit-note">Exponential backoff</div></div>
+    </div>
+  </div>
+
+  <div class="content-section" id="people">
+    <div class="section-head">
+      <div class="section-icon">P</div>
+      <div><h2>People (Contacts)</h2><p>The core resource &mdash; every lead, client, and contact in FUB</p></div>
+      <span class="section-tag tag-live">Core Resource</span>
+    </div>
+
+    <table class="endpoint-table">
+      <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/people</td><td class="endpoint-desc">List all contacts. Filter by stage, tag, assigned agent, date ranges. Supports full-text search.</td></tr>
+        <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/people</td><td class="endpoint-desc">Create a new contact. FUB auto-deduplicates by email/phone.</td></tr>
+        <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/people/:id</td><td class="endpoint-desc">Full contact record with all fields, tags, stage, assigned agent, custom fields.</td></tr>
+        <tr><td><span class="method method-put">PUT</span></td><td class="endpoint-path">/people/:id</td><td class="endpoint-desc">Update any contact field. Partial updates supported.</td></tr>
+        <tr><td><span class="method method-del">DEL</span></td><td class="endpoint-path">/people/:id</td><td class="endpoint-desc">Archive/delete a contact. Soft delete &mdash; contact stays as deleted.</td></tr>
+        <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/people/checkDuplicate</td><td class="endpoint-desc">Check if a person exists before creating. Pass email or phone.</td></tr>
+        <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/people/unclaimed</td><td class="endpoint-desc">Leads not yet assigned to an agent.</td></tr>
+        <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/people/claim</td><td class="endpoint-desc">Agent claims an unclaimed lead.</td></tr>
+        <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/personAttachments</td><td class="endpoint-desc">Attach files to a contact record.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="content-section" id="events">
+    <div class="section-head">
+      <div class="section-icon">E</div>
+      <div><h2>Events (Lead Intake)</h2><p>Preferred way to push leads from MLS VOW, website, or any source into FUB</p></div>
+      <span class="section-tag tag-live">Critical for MLS VOW</span>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">!</span>
+      When a buyer registers on the MLS VOW search portal, POST to <code>/events</code>. FUB will deduplicate, assign based on rules, and fire action plans automatically. This is the correct intake pattern &mdash; not <code>/people POST</code>.
+    </div>
+
+    <table class="endpoint-table">
+      <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/events</td><td class="endpoint-desc">Send a lead event. FUB deduplicates, assigns, triggers automation.</td></tr>
+        <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/events</td><td class="endpoint-desc">List lead events with source, type, person data.</td></tr>
+        <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/events/:id</td><td class="endpoint-desc">Get a specific event and the person it created or matched.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="content-section" id="notes">
+    <div class="section-head">
+      <div class="section-icon">N</div>
+      <div><h2>Notes / Calls / Text Messages</h2><p>All communication activity tied to a contact</p></div>
+    </div>
+
+    <div class="endpoint-group">
+      <div class="endpoint-group-title">Notes</div>
+      <table class="endpoint-table">
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/notes</td><td class="endpoint-desc">Add a note. Include personId, subject, body, isHtml flag.</td></tr>
+          <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/notes/:id</td><td class="endpoint-desc">Retrieve a specific note.</td></tr>
+          <tr><td><span class="method method-put">PUT</span></td><td class="endpoint-path">/notes/:id</td><td class="endpoint-desc">Edit an existing note.</td></tr>
+          <tr><td><span class="method method-del">DEL</span></td><td class="endpoint-path">/notes/:id</td><td class="endpoint-desc">Delete a note.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="endpoint-group">
+      <div class="endpoint-group-title">Calls</div>
+      <table class="endpoint-table">
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/calls</td><td class="endpoint-desc">List all call logs.</td></tr>
+          <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/calls</td><td class="endpoint-desc">Log a call. Fields: personId, duration, outcome, note, recordingUrl.</td></tr>
+          <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/calls/:id</td><td class="endpoint-desc">Get call details including recording URL.</td></tr>
+          <tr><td><span class="method method-put">PUT</span></td><td class="endpoint-path">/calls/:id</td><td class="endpoint-desc">Update call outcome or add notes.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="endpoint-group">
+      <div class="endpoint-group-title">Text Messages</div>
+      <table class="endpoint-table">
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/textMessages</td><td class="endpoint-desc">List all SMS messages.</td></tr>
+          <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/textMessages</td><td class="endpoint-desc">Send an SMS via FUB.</td></tr>
+          <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/textMessages/:id</td><td class="endpoint-desc">Get a specific message including delivery status.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="content-section" id="tasks">
+    <div class="section-head">
+      <div class="section-icon">T</div>
+      <div><h2>Tasks &amp; Appointments</h2><p>Agent to-do items and scheduled meetings tied to contacts</p></div>
+    </div>
+
+    <div class="endpoint-group">
+      <div class="endpoint-group-title">Tasks</div>
+      <table class="endpoint-table">
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/tasks</td><td class="endpoint-desc">List tasks. Filter by assignedTo, dueDate, isComplete, personId.</td></tr>
+          <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/tasks</td><td class="endpoint-desc">Create a task.</td></tr>
+          <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/tasks/:id</td><td class="endpoint-desc">Get task details.</td></tr>
+          <tr><td><span class="method method-put">PUT</span></td><td class="endpoint-path">/tasks/:id</td><td class="endpoint-desc">Update or complete a task.</td></tr>
+          <tr><td><span class="method method-del">DEL</span></td><td class="endpoint-path">/tasks/:id</td><td class="endpoint-desc">Delete a task.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="endpoint-group">
+      <div class="endpoint-group-title">Appointments</div>
+      <table class="endpoint-table">
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/appointments</td><td class="endpoint-desc">List appointments.</td></tr>
+          <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/appointments</td><td class="endpoint-desc">Create appointment.</td></tr>
+          <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/appointments/:id</td><td class="endpoint-desc">Get appointment details.</td></tr>
+          <tr><td><span class="method method-put">PUT</span></td><td class="endpoint-path">/appointments/:id</td><td class="endpoint-desc">Update appointment time, outcome, status.</td></tr>
+          <tr><td><span class="method method-del">DEL</span></td><td class="endpoint-path">/appointments/:id</td><td class="endpoint-desc">Cancel appointment.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="content-section" id="action-plans">
+    <div class="section-head">
+      <div class="section-icon">AP</div>
+      <div><h2>Action Plans &amp; Automations</h2><p>Trigger drip sequences and automated workflows on contacts</p></div>
+      <span class="section-tag tag-setup">Portal Automation</span>
+    </div>
+
+    <div class="endpoint-group">
+      <div class="endpoint-group-title">Action Plans</div>
+      <table class="endpoint-table">
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/actionPlans</td><td class="endpoint-desc">List all available action plans.</td></tr>
+          <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/actionPlansPeople</td><td class="endpoint-desc">List contacts enrolled in action plans.</td></tr>
+          <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/actionPlansPeople</td><td class="endpoint-desc">Enroll a contact in an action plan.</td></tr>
+          <tr><td><span class="method method-put">PUT</span></td><td class="endpoint-path">/actionPlansPeople/:id</td><td class="endpoint-desc">Pause, resume, or remove a contact.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="endpoint-group">
+      <div class="endpoint-group-title">Automations</div>
+      <table class="endpoint-table">
+        <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/automations</td><td class="endpoint-desc">List all automation workflows.</td></tr>
+          <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/automations/:id</td><td class="endpoint-desc">Get automation details.</td></tr>
+          <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/automationsPeople</td><td class="endpoint-desc">List contacts active in automations.</td></tr>
+          <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/automationsPeople</td><td class="endpoint-desc">Trigger an automation for a specific contact.</td></tr>
+          <tr><td><span class="method method-put">PUT</span></td><td class="endpoint-path">/automationsPeople/:id</td><td class="endpoint-desc">Update enrollment status.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="content-section" id="email-marketing">
+    <div class="section-head">
+      <div class="section-icon">EM</div>
+      <div><h2>Email Marketing &middot; Templates</h2><p>Campaigns, broadcast emails, reusable templates</p></div>
+    </div>
+
+    <table class="endpoint-table">
+      <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/emCampaigns</td><td class="endpoint-desc">List all email marketing campaigns.</td></tr>
+        <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/emCampaigns</td><td class="endpoint-desc">Create a broadcast campaign.</td></tr>
+        <tr><td><span class="method method-put">PUT</span></td><td class="endpoint-path">/emCampaigns/:id</td><td class="endpoint-desc">Update campaign status.</td></tr>
+        <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/emEvents</td><td class="endpoint-desc">Email engagement events: opens, clicks, bounces.</td></tr>
+        <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/templates</td><td class="endpoint-desc">List email templates.</td></tr>
+        <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/templates</td><td class="endpoint-desc">Create a new email template.</td></tr>
+        <tr><td><span class="method method-put">PUT</span></td><td class="endpoint-path">/templates/:id</td><td class="endpoint-desc">Edit an existing template.</td></tr>
+        <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/templates/merge</td><td class="endpoint-desc">Render a template with a person's data.</td></tr>
+        <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/textMessageTemplates</td><td class="endpoint-desc">List SMS templates.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="content-section" id="stages">
+    <div class="section-head">
+      <div class="section-icon">S</div>
+      <div><h2>Stages &middot; Smart Lists &middot; Custom Fields</h2><p>Pipeline configuration and dynamic contact segmentation</p></div>
+    </div>
+
+    <table class="endpoint-table">
+      <thead><tr><th>Method</th><th>Endpoint</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/stages</td><td class="endpoint-desc">List all pipeline stages.</td></tr>
+        <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/stages</td><td class="endpoint-desc">Create a custom stage.</td></tr>
+        <tr><td><span class="method method-put">PUT</span></td><td class="endpoint-path">/stages/:id</td><td class="endpoint-desc">Rename or reorder a stage.</td></tr>
+        <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/smartLists</td><td class="endpoint-desc">List all saved smart lists.</td></tr>
+        <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/smartLists/:id</td><td class="endpoint-desc">Get all contacts in a smart list.</td></tr>
+        <tr><td><span class="method method-get">GET</span></td><td class="endpoint-path">/customFields</td><td class="endpoint-desc">List all custom fields.</td></tr>
+        <tr><td><span class="method method-post">POST</span></td><td class="endpoint-path">/customFields</td><td class="endpoint-desc">Create a new custom field.</td></tr>
+        <tr><td><span class="method method-put">PUT</span></td><td class="endpoint-path">/customFields/:id</td><td class="endpoint-desc">Update a custom field.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn">
+      <span class="callout-icon">!</span>
+      Create custom fields like <strong>skyslope_file_id</strong>, <strong>mls_saved_search</strong>, <strong>vow_session_token</strong>, and <strong>cloud_cma_report_url</strong> in FUB to link all four platforms together on a single contact.
+    </div>
+  </div>
+
+  <div class="content-section" id="webhooks">
+    <div class="section-head">
+      <div class="section-icon">W</div>
+      <div><h2>Webhooks (Real-Time Events)</h2><p>FUB pushes to your portal instantly &mdash; no polling required</p></div>
+      <span class="section-tag tag-live">Real-Time</span>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">i</span>
+      Register webhook URLs at <code>POST /v1/webhooks</code>. Endpoint must return 2xx within 5 seconds or FUB retries up to 5 times. Validate the <code>FUB-Signature</code> header.
+    </div>
+
+    <div class="webhook-grid">
+      <div class="webhook-card">
+        <div class="webhook-event">peopleCreated</div>
+        <div class="webhook-desc">New contact added from any source.</div>
+      </div>
+      <div class="webhook-card">
+        <div class="webhook-event">peopleUpdated</div>
+        <div class="webhook-desc">Contact record changed.</div>
+      </div>
+      <div class="webhook-card">
+        <div class="webhook-event">peopleDeleted</div>
+        <div class="webhook-desc">Contact archived or deleted.</div>
+      </div>
+      <div class="webhook-card">
+        <div class="webhook-event">peopleStageUpdated</div>
+        <div class="webhook-desc">Pipeline stage changed.</div>
+      </div>
+      <div class="webhook-card">
+        <div class="webhook-event">peopleTagsCreated</div>
+        <div class="webhook-desc">New tag added to a contact.</div>
+      </div>
+      <div class="webhook-card">
+        <div class="webhook-event">peopleRelationshipCreated</div>
+        <div class="webhook-desc">A relationship linked.</div>
+      </div>
+      <div class="webhook-card">
+        <div class="webhook-event">callCompleted</div>
+        <div class="webhook-desc">A phone call was logged.</div>
+      </div>
+      <div class="webhook-card">
+        <div class="webhook-event">textMessageReceived</div>
+        <div class="webhook-desc">Incoming SMS from a contact.</div>
+      </div>
+      <div class="webhook-card">
+        <div class="webhook-event">taskCreated / taskUpdated</div>
+        <div class="webhook-desc">New or modified task in FUB.</div>
+      </div>
+      <div class="webhook-card">
+        <div class="webhook-event">appointmentCreated</div>
+        <div class="webhook-desc">New appointment scheduled.</div>
+      </div>
+      <div class="webhook-card">
+        <div class="webhook-event">noteCreated</div>
+        <div class="webhook-desc">Note added to a contact.</div>
+      </div>
+      <div class="webhook-card">
+        <div class="webhook-event">emailBounced / unsubscribed</div>
+        <div class="webhook-desc">Email delivery failure or opt-out.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-section" id="mcp">
+    <div class="section-head">
+      <div class="section-icon">AI</div>
+      <div><h2>MCP Tool Definitions</h2><p>Every FUB capability exposed to Claude as a callable tool</p></div>
+      <span class="section-tag tag-setup">AI Layer</span>
+    </div>
+
+    <div class="mcp-block">
+      <div class="mcp-title">Follow Up Boss MCP Server</div>
+      <div class="mcp-desc">The MCP server wraps every FUB endpoint as a named tool with typed parameters. Claude can call any of these tools conversationally.</div>
+      <div class="mcp-tools">
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_search_contacts</div><div class="mcp-tool-desc">Search and filter contacts by stage, tag, agent, activity date, or text</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_get_contact</div><div class="mcp-tool-desc">Get full contact record with timeline and linked transactions</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_create_contact</div><div class="mcp-tool-desc">Add a new person with deduplication</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_update_contact</div><div class="mcp-tool-desc">Update any field on a contact</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_send_event</div><div class="mcp-tool-desc">Push a lead event into FUB</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_add_note</div><div class="mcp-tool-desc">Write a note to a contact's timeline</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_log_call</div><div class="mcp-tool-desc">Record a call</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_send_text</div><div class="mcp-tool-desc">Send an SMS via FUB</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_create_task</div><div class="mcp-tool-desc">Add a follow-up task</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_schedule_appointment</div><div class="mcp-tool-desc">Book an appointment</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_enroll_action_plan</div><div class="mcp-tool-desc">Put a contact into a drip sequence</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_get_smart_list</div><div class="mcp-tool-desc">Return contacts matching a saved smart list</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_send_campaign</div><div class="mcp-tool-desc">Create and send a broadcast email campaign</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_get_unclaimed_leads</div><div class="mcp-tool-desc">Pull all unassigned leads</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_assign_lead</div><div class="mcp-tool-desc">Claim or reassign a lead</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_get_activity_feed</div><div class="mcp-tool-desc">Get full timeline for a contact</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_bulk_update_stage</div><div class="mcp-tool-desc">Move multiple contacts to a new stage</div></div>
+        <div class="mcp-tool"><div class="mcp-tool-name">fub_webhook_register</div><div class="mcp-tool-desc">Register a webhook endpoint</div></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+  function scrollToId(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+    if (event && event.target) event.target.classList.add('active');
+  }
+</script>
+</body>
+</html>

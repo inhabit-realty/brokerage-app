@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Listings — inhabit.app</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="agent-shell.css">
+<style>
+  .pagebar{background:var(--white);border-bottom:1px solid var(--mist);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;}
+  .pagebar-left{display:flex;align-items:baseline;gap:18px;}
+  .pagebar h1{font-family:'Playfair Display',serif;font-size:1.45rem;font-weight:500;color:var(--prussian);}
+  .crumb{font-size:10.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ash);font-weight:500;}
+  .pagebar-actions{display:flex;align-items:center;gap:10px;}
+  .btn-primary{background:var(--gold);color:var(--canvas);padding:10px 16px;border:none;font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+  .btn-primary:hover{background:var(--gold-light);}
+  .btn-ghost{background:transparent;color:var(--prussian);padding:9px 14px;border:1px solid var(--mist);font-family:'DM Sans',sans-serif;font-size:11.5px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;}
+  .btn-ghost:hover{border-color:var(--prussian);}
+
+  .content{padding:28px 32px 64px;max-width:1320px;width:100%;margin:0 auto;}
+
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--mist);border:1px solid var(--mist);margin-bottom:28px;}
+  .stat{background:var(--white);padding:18px 22px;}
+  .stat-label{font-size:9.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ash);font-weight:500;margin-bottom:8px;}
+  .stat-num{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:400;color:var(--prussian);line-height:1;}
+  .stat-sub{font-size:11px;color:var(--ash);margin-top:6px;font-family:'DM Mono',monospace;letter-spacing:0;}
+
+  .tabs{display:flex;gap:0;border-bottom:1px solid var(--mist);margin-bottom:0;}
+  .tab{padding:14px 22px;font-size:12px;color:var(--ash);font-weight:500;letter-spacing:0.04em;display:flex;align-items:center;gap:10px;border-bottom:2px solid transparent;cursor:pointer;background:transparent;border-left:none;border-right:none;border-top:none;font-family:'DM Sans',sans-serif;}
+  .tab .num{background:var(--canvas2);color:var(--ash);font-size:10.5px;padding:1px 7px;}
+  .tab.active{color:var(--prussian);border-bottom-color:var(--gold);}
+  .tab.active .num{background:var(--prussian);color:var(--canvas);}
+  .tab:hover:not(.active){color:var(--prussian);}
+
+  .table-wrap{background:var(--white);border:1px solid var(--mist);border-top:none;}
+  .table-tools{padding:14px 22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--canvas2);gap:14px;flex-wrap:wrap;}
+  .search-mini{display:flex;align-items:center;background:var(--canvas);border:1px solid var(--mist);padding:7px 12px;gap:9px;flex:1;max-width:340px;}
+  .search-mini input{border:none;background:transparent;outline:none;font-size:13px;flex:1;}
+  .table-actions{display:flex;gap:8px;}
+  .filter-pill{font-size:11px;color:var(--prussian);background:var(--canvas);border:1px solid var(--mist);padding:6px 12px;display:inline-flex;align-items:center;gap:8px;cursor:pointer;}
+  .filter-pill:hover{border-color:var(--prussian);}
+
+  table{width:100%;border-collapse:collapse;}
+  th{text-align:left;font-size:9.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ash);font-weight:600;padding:12px 18px;border-bottom:1px solid var(--mist);background:var(--canvas);}
+  td{padding:14px 18px;border-bottom:1px solid var(--canvas2);font-size:13px;color:var(--onyx);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:var(--canvas);cursor:pointer;}
+  td.thumb{width:64px;}
+  .thumb-box{width:54px;height:42px;background:linear-gradient(135deg, var(--prussian3), var(--prussian));position:relative;}
+  .thumb-box::after{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(196,146,42,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(196,146,42,0.06) 1px, transparent 1px);background-size:14px 14px;}
+  .listing-addr{font-weight:500;color:var(--prussian);font-size:13px;}
+  .listing-city{font-size:11px;color:var(--ash);margin-top:2px;font-family:'DM Mono',monospace;letter-spacing:0;}
+  .status{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;padding:3px 8px;font-weight:500;display:inline-block;}
+  .status.active{background:#e6efe9;color:var(--green);}
+  .status.coming{background:var(--gold-pale);color:var(--gold);}
+  .status.pending{background:#fbeede;color:#9a5a00;}
+  .status.closed{background:var(--canvas2);color:var(--ash);}
+  td .num{color:var(--prussian);font-weight:500;}
+  .row-actions{display:flex;gap:8px;justify-content:flex-end;}
+  .row-act{width:30px;height:30px;background:var(--white);border:1px solid var(--mist);color:var(--ash);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .row-act:hover{color:var(--prussian);border-color:var(--prussian);}
+
+  .scrim{position:fixed;inset:0;background:rgba(26,34,51,0.45);opacity:0;pointer-events:none;transition:opacity 0.2s;z-index:60;}
+  .scrim.open{opacity:1;pointer-events:auto;}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:540px;max-width:96vw;background:var(--canvas);transform:translateX(100%);transition:transform 0.25s ease;z-index:70;display:flex;flex-direction:column;}
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{padding:20px 28px;border-bottom:1px solid var(--mist);background:var(--white);display:flex;justify-content:space-between;align-items:flex-start;gap:14px;}
+  .drawer-head h2{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--prussian);font-weight:500;line-height:1.2;}
+  .drawer-head p{font-size:12px;color:var(--ash);margin-top:4px;line-height:1.6;}
+  .drawer-close{background:transparent;border:none;color:var(--ash);cursor:pointer;padding:4px;}
+  .drawer-close:hover{color:var(--prussian);}
+  .drawer-body{padding:24px 28px;overflow-y:auto;flex:1;}
+  .drawer-foot{padding:18px 28px;border-top:1px solid var(--mist);background:var(--white);display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  .api-mark{font-size:10.5px;color:var(--ash);font-family:'DM Mono',monospace;letter-spacing:0;line-height:1.5;}
+  .api-mark code{background:var(--canvas2);color:var(--prussian);padding:2px 6px;}
+
+  .form-section{margin-bottom:24px;}
+  .form-section-label{font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+  .form-section-label::before{content:'';width:18px;height:1px;background:var(--gold);}
+  .form-row{display:grid;gap:12px;margin-bottom:12px;}
+  .form-row.two{grid-template-columns:1fr 1fr;}
+  .form-row.three{grid-template-columns:1fr 1fr 1fr;}
+  .field{display:flex;flex-direction:column;gap:5px;}
+  .field label{font-size:9.5px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ash);font-weight:500;display:flex;justify-content:space-between;}
+  .field label .map-key{font-family:'DM Mono',monospace;color:var(--prussian);text-transform:none;letter-spacing:0;font-size:10px;font-weight:500;opacity:0.8;}
+  .field input,.field select,.field textarea{background:var(--white);border:1px solid var(--mist);padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--onyx);outline:none;transition:border-color 0.15s;}
+  .field input.num,.field select.num{font-family:'DM Mono',monospace;}
+  .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--prussian);}
+  .field textarea{resize:vertical;min-height:84px;}
+  .photo-drop{border:1.5px dashed var(--mist);background:var(--white);padding:24px;text-align:center;font-size:12px;color:var(--ash);line-height:1.7;cursor:pointer;}
+  .photo-drop:hover{border-color:var(--gold);color:var(--prussian);}
+  .photo-drop strong{color:var(--prussian);font-weight:500;display:block;margin-bottom:4px;}
+
+  @media(max-width:1100px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:768px){.content{padding:18px;}.drawer{width:100vw;}}
+</style>
+</head>
+<body>
+
+<div data-topnav data-page="listings"></div>
+
+<header class="pagebar">
+  <div class="pagebar-left">
+    <h1>My Listings</h1>
+    <span class="crumb">via Listing Data</span>
+  </div>
+  <div class="pagebar-actions">
+    <button class="btn-ghost">Export CSV</button>
+    <button class="btn-primary" onclick="document.getElementById('drawer').classList.add('open');document.getElementById('scrim').classList.add('open');">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Add Listing
+    </button>
+  </div>
+</header>
+
+<section class="content">
+
+  <div class="stats-row">
+    <div class="stat"><div class="stat-label">Active</div><div class="stat-num num">9</div><div class="stat-sub">$8.2M total volume</div></div>
+    <div class="stat"><div class="stat-label">Avg DOM</div><div class="stat-num num">21</div><div class="stat-sub">vs market avg 28</div></div>
+    <div class="stat"><div class="stat-label">Avg List : Sold</div><div class="stat-num num">98.4%</div><div class="stat-sub">last 12 closings</div></div>
+    <div class="stat"><div class="stat-label">Closed YTD</div><div class="stat-num num">17</div><div class="stat-sub">$14.1M volume</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active">All <span class="num">14</span></button>
+    <button class="tab">Active <span class="num">9</span></button>
+    <button class="tab">Coming Soon <span class="num">2</span></button>
+    <button class="tab">Pending <span class="num">2</span></button>
+    <button class="tab">Closed (90d) <span class="num">1</span></button>
+    <button class="tab">Withdrawn <span class="num">0</span></button>
+  </div>
+
+  <div class="table-wrap">
+
+    <div class="table-tools">
+      <div class="search-mini">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg>
+        <input type="text" placeholder="Search address, MLS#…">
+      </div>
+      <div class="table-actions">
+        <span class="filter-pill">Coral Gables <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></span>
+        <span class="filter-pill">Listed by me <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></span>
+        <span class="filter-pill">+ Filter</span>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th></th><th>Address</th><th>Status</th><th>List Price</th><th>DOM</th><th>Tours</th><th>Last Activity</th><th>MLS #</th><th></th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="thumb"><div class="thumb-box"></div></td>
+          <td><div class="listing-addr">4827 Bayshore Drive</div><div class="listing-city">Coral Gables, FL 33133</div></td>
+          <td><span class="status coming">Coming Soon</span></td>
+          <td><span class="num">$1,425,000</span></td>
+          <td><span class="num">—</span></td>
+          <td><span class="num">0</span></td>
+          <td>Photos uploaded · 2h</td>
+          <td><span class="num">A11459003</span></td>
+          <td><div class="row-actions"><button class="row-act"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button><button class="row-act"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg></button></div></td>
+        </tr>
+        <tr>
+          <td class="thumb"><div class="thumb-box"></div></td>
+          <td><div class="listing-addr">821 Pine Ridge Lane</div><div class="listing-city">Coral Gables, FL 33146</div></td>
+          <td><span class="status active">Active</span></td>
+          <td><span class="num">$1,185,000</span></td>
+          <td><span class="num">3</span></td>
+          <td><span class="num">7</span></td>
+          <td>Showing requested · 12m</td>
+          <td><span class="num">A11456712</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="thumb"><div class="thumb-box"></div></td>
+          <td><div class="listing-addr">2204 Alhambra Circle</div><div class="listing-city">Coral Gables, FL 33134</div></td>
+          <td><span class="status active">Active</span></td>
+          <td><span class="num">$945,000</span></td>
+          <td><span class="num">14</span></td>
+          <td><span class="num">11</span></td>
+          <td>Open house scheduled · 1d</td>
+          <td><span class="num">A11447228</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="thumb"><div class="thumb-box"></div></td>
+          <td><div class="listing-addr">1140 Coquina Way</div><div class="listing-city">Coral Gables, FL 33156</div></td>
+          <td><span class="status pending">Pending</span></td>
+          <td><span class="num">$762,500</span></td>
+          <td><span class="num">22</span></td>
+          <td><span class="num">9</span></td>
+          <td>Counter received · 42m</td>
+          <td><span class="num">A11442198</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="thumb"><div class="thumb-box"></div></td>
+          <td><div class="listing-addr">3318 Santa Maria Street</div><div class="listing-city">Coral Gables, FL 33134</div></td>
+          <td><span class="status active">Active</span></td>
+          <td><span class="num">$685,000</span></td>
+          <td><span class="num">31</span></td>
+          <td><span class="num">5</span></td>
+          <td>Price reduced · 3d</td>
+          <td><span class="num">A11438817</span></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td class="thumb"><div class="thumb-box"></div></td>
+          <td><div class="listing-addr">560 Hardee Road</div><div class="listing-city">Coral Gables, FL 33146</div></td>
+          <td><span class="status active">Active</span></td>
+          <td><span class="num">$1,050,000</span></td>
+          <td><span class="num">9</span></td>
+          <td><span class="num">6</span></td>
+          <td>Inquiry from buyer agent · 4h</td>
+          <td><span class="num">A11451104</span></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+</section>
+
+<div class="scrim" id="scrim" onclick="document.getElementById('drawer').classList.remove('open');this.classList.remove('open');"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div>
+      <h2>Add a listing</h2>
+      <p>Posts to <strong style="color:var(--prussian);">Listing Data</strong> and creates a linked SkySlope file.</p>
+    </div>
+    <button class="drawer-close" onclick="document.getElementById('drawer').classList.remove('open');document.getElementById('scrim').classList.remove('open');"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+  </div>
+
+  <div class="drawer-body">
+
+    <div class="form-section">
+      <div class="form-section-label">Address</div>
+      <div class="form-row"><div class="field"><label>Street <span class="map-key">address.line1</span></label><input type="text" placeholder="4827 Bayshore Drive"></div></div>
+      <div class="form-row two">
+        <div class="field"><label>Unit <span class="map-key">address.unit</span></label><input type="text" placeholder="optional"></div>
+        <div class="field"><label>ZIP <span class="map-key">address.postal</span></label><input type="text" class="num" placeholder="33133"></div>
+      </div>
+      <div class="form-row two">
+        <div class="field"><label>City <span class="map-key">address.city</span></label><input type="text" placeholder="Coral Gables"></div>
+        <div class="field"><label>State <span class="map-key">address.region</span></label><select class="num"><option>FL</option><option>GA</option><option>SC</option></select></div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-label">Pricing</div>
+      <div class="form-row two">
+        <div class="field"><label>List Price <span class="map-key">price.list</span></label><input type="text" class="num" placeholder="$1,425,000"></div>
+        <div class="field"><label>Original List <span class="map-key">price.original</span></label><input type="text" class="num" placeholder="auto"></div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-label">Property</div>
+      <div class="form-row two">
+        <div class="field"><label>Type <span class="map-key">property.type</span></label><select><option>Single Family</option><option>Condo</option><option>Townhouse</option><option>Multi-Family</option><option>Land</option></select></div>
+        <div class="field"><label>Year Built <span class="map-key">property.yearBuilt</span></label><input type="text" class="num" placeholder="1968"></div>
+      </div>
+      <div class="form-row three">
+        <div class="field"><label>Beds <span class="map-key">beds</span></label><input type="text" class="num" placeholder="5"></div>
+        <div class="field"><label>Baths <span class="map-key">baths</span></label><input type="text" class="num" placeholder="4"></div>
+        <div class="field"><label>Half Baths <span class="map-key">baths.half</span></label><input type="text" class="num" placeholder="0"></div>
+      </div>
+      <div class="form-row two">
+        <div class="field"><label>Living Sqft <span class="map-key">sqft.living</span></label><input type="text" class="num" placeholder="3,650"></div>
+        <div class="field"><label>Lot Sqft <span class="map-key">sqft.lot</span></label><input type="text" class="num" placeholder="13,940"></div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-label">Listing</div>
+      <div class="form-row two">
+        <div class="field"><label>Status <span class="map-key">listing.status</span></label><select><option>Coming Soon</option><option>Active</option><option>Pending</option></select></div>
+        <div class="field"><label>List Date <span class="map-key">listing.listedAt</span></label><input type="text" class="num" placeholder="2026-05-09"></div>
+      </div>
+      <div class="form-row"><div class="field"><label>MLS Number <span class="map-key">listing.mlsId</span></label><input type="text" class="num" placeholder="auto-generated on publish"></div></div>
+      <div class="form-row"><div class="field"><label>Description <span class="map-key">listing.description</span></label><textarea placeholder="Set the scene without exclamation marks."></textarea></div></div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-label">Photos</div>
+      <div class="photo-drop">
+        <strong>Drop images, or click to upload</strong>
+        First photo becomes the hero. JPEG/PNG, 1600px+ wide preferred.
+        <div style="margin-top:8px;font-family:'DM Mono',monospace;font-size:10px;color:var(--gold);">→ uploads to media.LISTING_DATA_API_BASE</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="drawer-foot">
+    <div class="api-mark">
+      POST <code>{LISTING_DATA_API_BASE}/listings</code><br>
+      Auth: <code>LISTING_DATA_API_KEY</code> &middot; FUB linked via <code>fub_person_id</code>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-ghost">Save draft</button>
+      <button class="btn-primary">Publish</button>
+    </div>
+  </div>
+</aside>
+
+<script src="agent-shell.js"></script>
+</body>
+</html>

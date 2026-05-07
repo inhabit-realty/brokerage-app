@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in — inhabit.app</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --prussian:   #1A3044;
+    --prussian2:  #122233;
+    --prussian3:  #243e55;
+    --onyx:       #1A1A1A;
+    --canvas:     #F8F6F2;
+    --canvas2:    #EDE9E2;
+    --gold:       #8A6500;
+    --gold-light: #C4922A;
+    --mist:       #D8D2C8;
+    --ash:        #6A6460;
+    --white:      #FFFFFF;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;font-weight:300;background:var(--canvas);color:var(--onyx);min-height:100vh;display:grid;grid-template-rows:auto 1fr auto;}
+  body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle at 18% 28%, rgba(26,48,68,0.06) 0%, transparent 55%), radial-gradient(circle at 82% 72%, rgba(138,101,0,0.05) 0%, transparent 55%);pointer-events:none;z-index:0;}
+
+  header.top{padding:28px 48px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;}
+  .logo{font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--prussian);letter-spacing:-0.5px;}
+  .logo span{color:var(--gold);}
+  .logo small{font-family:'DM Mono',monospace;font-size:10px;color:var(--ash);letter-spacing:0.18em;text-transform:uppercase;margin-left:10px;font-weight:400;}
+  .top-link{font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ash);text-decoration:none;font-weight:500;}
+  .top-link:hover{color:var(--prussian);}
+
+  main{display:flex;align-items:center;justify-content:center;padding:24px;position:relative;z-index:1;}
+  .card{background:var(--white);border:1px solid var(--mist);max-width:460px;width:100%;padding:52px 52px 36px;position:relative;}
+  .card::before{content:'';position:absolute;top:-1px;left:-1px;width:64px;height:3px;background:var(--gold);}
+
+  .eyebrow{font-size:10px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:18px;display:flex;align-items:center;gap:12px;}
+  .eyebrow::before{content:'';width:24px;height:1px;background:var(--gold);}
+
+  h1{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:400;color:var(--prussian);line-height:1.15;margin-bottom:14px;}
+  h1 em{font-style:italic;color:var(--gold);}
+  .lede{font-size:14px;color:var(--ash);line-height:1.7;margin-bottom:32px;}
+
+  .btn-fub{width:100%;background:var(--prussian);color:var(--canvas);padding:16px 22px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.06em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;transition:background 0.15s;}
+  .btn-fub:hover{background:var(--prussian3);}
+  .btn-fub:disabled{opacity:0.7;cursor:wait;}
+  .btn-fub svg{flex-shrink:0;}
+
+  .scopes{margin-top:18px;padding:16px 18px;background:var(--canvas);border:1px solid var(--mist);font-size:12px;line-height:1.7;color:var(--ash);}
+  .scopes strong{color:var(--prussian);font-weight:500;display:block;margin-bottom:6px;font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;}
+  .scopes ul{list-style:none;}
+  .scopes li{padding-left:14px;position:relative;font-size:12px;}
+  .scopes li::before{content:'';position:absolute;left:0;top:11px;width:6px;height:1px;background:var(--gold);}
+
+  .divider{display:flex;align-items:center;gap:14px;margin:28px 0 18px;color:var(--ash);font-size:10px;letter-spacing:0.18em;text-transform:uppercase;font-weight:500;}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--mist);}
+
+  .btn-secondary{width:100%;background:transparent;color:var(--prussian);padding:13px 22px;border:1px solid var(--mist);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;cursor:pointer;text-align:center;transition:border-color 0.15s, color 0.15s;text-decoration:none;display:block;}
+  .btn-secondary:hover{border-color:var(--prussian);color:var(--prussian);}
+
+  .footnote{margin-top:28px;font-size:11.5px;color:var(--ash);line-height:1.7;text-align:center;}
+  .footnote a{color:var(--prussian);text-decoration:none;border-bottom:1px solid var(--mist);}
+  .footnote a:hover{border-color:var(--prussian);}
+
+  footer{padding:22px 48px;border-top:1px solid var(--mist);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:10.5px;letter-spacing:0.06em;color:var(--ash);position:relative;z-index:1;background:var(--canvas2);}
+  footer .legal{display:flex;gap:20px;}
+  footer a{color:inherit;text-decoration:none;}
+  footer a:hover{color:var(--prussian);}
+  footer .meta{font-family:'DM Mono',monospace;letter-spacing:0.04em;}
+
+  @media(max-width:640px){
+    header.top{padding:20px;}
+    .card{padding:36px 28px 28px;}
+    footer{padding:18px 20px;flex-direction:column;gap:10px;align-items:flex-start;}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="logo">inhabit<span>.</span><small>app</small></div>
+  <a class="top-link" href="#">Need help?</a>
+</header>
+
+<main>
+  <div class="card">
+    <p class="eyebrow">Agent Workspace</p>
+    <h1>Welcome <em>back</em>.</h1>
+    <p class="lede">Sign in with your Follow Up Boss account to access your CRM, search the listings feed, and manage your transactions in one place.</p>
+
+    <button class="btn-fub" onclick="this.innerHTML='Redirecting to Follow Up Boss&hellip;';this.disabled=true;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9 6 9-6M5 6h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z"/></svg>
+      Continue with Follow Up Boss
+    </button>
+
+    <div class="scopes">
+      <strong>You'll authorize</strong>
+      <ul>
+        <li>Read your contacts, deals, tasks, and calendar</li>
+        <li>Log activities and create events</li>
+        <li>Send email and SMS through your FUB number</li>
+      </ul>
+    </div>
+
+    <div class="divider">or</div>
+
+    <a class="btn-secondary" href="#">Sign in with email</a>
+
+    <p class="footnote">First time here? <a href="join.html">Talk to your broker</a> about activating your workspace.</p>
+  </div>
+</main>
+
+<footer>
+  <div>&copy; 2026 inhabit<span style="color:var(--gold)">.</span> realty &middot; Florida &middot; Equal Housing Opportunity</div>
+  <div class="legal">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#" class="meta">v0.1.0</a>
+  </div>
+</footer>
+
+</body>
+</html>

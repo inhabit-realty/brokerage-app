@@ -1,0 +1,30 @@
+# Secrets — never commit
+.env
+**/.env
+.env*.local
+*.pem
+*.key
+
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+build/
+.next/
+out/
+.cache/
+*.tsbuildinfo
+next-env.d.ts
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Testing
+coverage/
+
+# Logs
+*.log

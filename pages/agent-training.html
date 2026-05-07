@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>inhabit. realty — Agent Training Program</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --prussian:   #1A3044;
+    --prussian2:  #122233;
+    --prussian3:  #243e55;
+    --onyx:       #1A1A1A;
+    --canvas:     #F8F6F2;
+    --canvas2:    #EDE9E2;
+    --gold:       #8A6500;
+    --gold-light: #C4922A;
+    --gold-pale:  #E8D5A8;
+    --mist:       #D8D2C8;
+    --ash:        #6A6460;
+    --white:      #FFFFFF;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; font-weight: 300; background: var(--canvas); color: var(--onyx); }
+
+  .topbar { background: var(--prussian); height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 56px; border-bottom: 1px solid rgba(196,146,42,0.25); }
+  .topbar-logo { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 600; color: var(--canvas); }
+  .topbar-logo span { color: var(--gold-light); font-weight: 400; font-style: italic; }
+  .topbar-right { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(248,246,242,0.4); }
+
+  .page { max-width: 980px; margin: 0 auto; padding: 56px 32px 80px; }
+
+  .doc-header { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px; margin-bottom: 48px; padding-bottom: 28px; border-bottom: 2px solid var(--prussian); }
+  .doc-eyebrow { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: 8px; }
+  .doc-title { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 400; color: var(--prussian); line-height: 1.1; }
+  .doc-subtitle { font-size: 13px; color: var(--ash); margin-top: 6px; }
+  .doc-meta { font-size: 11px; color: var(--ash); text-align: right; line-height: 2; }
+
+  .philosophy { background: var(--prussian); padding: 40px 48px; margin-bottom: 48px; border-left: 4px solid var(--gold); }
+  .philosophy-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 400; color: var(--gold-light); margin-bottom: 12px; }
+  .philosophy p { font-size: 13px; line-height: 1.85; color: rgba(248,246,242,0.75); max-width: 680px; }
+  .pillars { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; margin-top: 28px; }
+  .pillar { border-left: 1px solid rgba(196,146,42,0.3); padding-left: 18px; }
+  .pillar-n { font-size: 10px; letter-spacing: 0.18em; color: var(--gold-light); margin-bottom: 5px; font-weight: 500; }
+  .pillar-t { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 600; color: var(--canvas); margin-bottom: 5px; }
+  .pillar-d { font-size: 11.5px; color: rgba(248,246,242,0.5); line-height: 1.65; }
+
+  .milestones { display: grid; grid-template-columns: repeat(4,1fr); border: 1px solid var(--mist); margin-bottom: 56px; background: var(--white); }
+  .ms { padding: 24px 28px; border-right: 1px solid var(--mist); }
+  .ms:last-child { border-right: none; }
+  .ms-day { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: 6px; }
+  .ms-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; color: var(--prussian); margin-bottom: 4px; }
+  .ms-desc { font-size: 11.5px; color: var(--ash); line-height: 1.6; }
+
+  .phase { margin-bottom: 48px; border: 1px solid var(--mist); background: var(--white); }
+  .phase-header { display: flex; align-items: center; gap: 16px; padding: 24px 32px; border-bottom: 1px solid var(--mist); }
+  .phase-badge { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 500; padding: 5px 14px; border-radius: 2px; }
+  .p1 .phase-badge { background: #d6eadd; color: #1a4a2a; }
+  .p2 .phase-badge { background: #d6daea; color: #1a2a5a; }
+  .p3 .phase-badge { background: #ead6d6; color: #4a1a1a; }
+  .pg .phase-badge { background: var(--gold-pale); color: var(--gold); }
+  .phase-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 400; color: var(--prussian); }
+  .phase-days { margin-left: auto; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ash); }
+
+  .modules { display: grid; grid-template-columns: 1fr 1fr; }
+  .mod { padding: 28px 32px; border-right: 1px solid var(--mist); border-bottom: 1px solid var(--mist); }
+  .mod:nth-child(even) { border-right: none; }
+  .mod:nth-last-child(-n+2) { border-bottom: none; }
+  .mod-week { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: 8px; }
+  .mod-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 600; color: var(--prussian); margin-bottom: 12px; }
+  .mod-list { list-style: none; }
+  .mod-list li { font-size: 12.5px; line-height: 1.6; color: var(--ash); display: flex; gap: 8px; align-items: baseline; padding: 3px 0; }
+  .mod-list li::before { content: '-'; color: var(--gold); flex-shrink: 0; }
+  .mod-deliverable { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--canvas2); font-size: 12px; color: var(--onyx); font-weight: 500; }
+
+  .accountability { background: var(--prussian); padding: 48px; margin-bottom: 48px; }
+  .acct-eyebrow { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-light); font-weight: 500; margin-bottom: 10px; }
+  .acct-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 400; color: var(--canvas); margin-bottom: 32px; }
+  .acct-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: rgba(196,146,42,0.12); }
+  .acct-card { background: rgba(248,246,242,0.04); padding: 24px 20px; }
+  .acct-freq { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-light); font-weight: 500; margin-bottom: 8px; }
+  .acct-name { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600; color: var(--canvas); margin-bottom: 8px; }
+  .acct-desc { font-size: 12px; color: rgba(248,246,242,0.5); line-height: 1.7; }
+
+  .kpi-section { margin-bottom: 40px; }
+  .kpi-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 400; color: var(--prussian); margin-bottom: 20px; display: flex; align-items: center; gap: 16px; }
+  .kpi-title::after { content: ''; flex: 1; height: 1px; background: var(--mist); }
+  .kpi-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--mist); border: 1px solid var(--mist); }
+  .kpi-card { background: var(--white); padding: 24px 28px; }
+  .kpi-phase { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); font-weight: 500; margin-bottom: 14px; }
+  .kpi-card ul { list-style: none; }
+  .kpi-card ul li { font-size: 12.5px; line-height: 1.7; color: var(--onyx); display: flex; gap: 8px; align-items: baseline; }
+  .kpi-card ul li::before { content: '>'; color: var(--gold); flex-shrink: 0; font-size: 14px; }
+
+  .footer-note { padding: 24px 32px; border: 1px solid var(--mist); background: var(--canvas2); font-size: 12px; color: var(--ash); line-height: 1.8; }
+  .footer-note strong { color: var(--prussian); font-weight: 600; }
+
+  @media (max-width: 768px) {
+    .topbar { padding: 0 20px; } .page { padding: 32px 16px 60px; } .philosophy { padding: 28px 24px; } .pillars { grid-template-columns: 1fr; } .milestones { grid-template-columns: 1fr 1fr; } .modules { grid-template-columns: 1fr; } .mod:nth-child(even) { border-right: none; } .mod { border-right: none; } .mod:last-child { border-bottom: none; } .acct-grid { grid-template-columns: 1fr 1fr; } .kpi-grid { grid-template-columns: 1fr; } .accountability { padding: 28px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">inhabit<span>.</span> realty</div>
+  <div class="topbar-right">Agent Training Program &middot; v1.0 &middot; 2025</div>
+</div>
+
+<div class="page">
+
+  <div class="doc-header">
+    <div>
+      <div class="doc-eyebrow">inhabit. realty</div>
+      <div class="doc-title">Agent Training Program</div>
+      <div class="doc-subtitle">90-Day Ramp + Ongoing Coaching Framework &middot; New Agents &amp; Experienced Transfers</div>
+    </div>
+    <div class="doc-meta">Version 1.0 &middot; Effective 2025<br>Owner: Broker / Team Leader<br>Review Cycle: Annual</div>
+  </div>
+
+  <div class="philosophy">
+    <div class="philosophy-title">Training Philosophy</div>
+    <p>We believe agents don't fail because of the market &mdash; they fail because of ambiguity. Our program is designed to eliminate guesswork: every agent knows exactly what's expected of them, how they'll be held accountable, what tools they have, and who to call when they're stuck. Skills before software. Mindset before metrics. Accountability above all.</p>
+    <div class="pillars">
+      <div class="pillar"><div class="pillar-n">Pillar 01</div><div class="pillar-t">Skills-Based Foundation</div><div class="pillar-d">Scripts, role-play, and live shadowing before technology and marketing tools.</div></div>
+      <div class="pillar"><div class="pillar-n">Pillar 02</div><div class="pillar-t">Structured Accountability</div><div class="pillar-d">Daily, weekly, and monthly tracking tied to each agent's own 3-year goals.</div></div>
+      <div class="pillar"><div class="pillar-n">Pillar 03</div><div class="pillar-t">Rapid Productivity</div><div class="pillar-d">First contact attempt in week one. First deal goal by end of 90 days.</div></div>
+    </div>
+  </div>
+
+  <div class="milestones">
+    <div class="ms"><div class="ms-day">Day 1</div><div class="ms-title">Fully Onboarded</div><div class="ms-desc">ICA signed, license transferred, all systems live</div></div>
+    <div class="ms"><div class="ms-day">Day 7</div><div class="ms-title">First Contact</div><div class="ms-desc">Database built; first outreach calls made</div></div>
+    <div class="ms"><div class="ms-day">Day 30</div><div class="ms-title">First Appointment</div><div class="ms-desc">Live buyer or seller appointment completed</div></div>
+    <div class="ms"><div class="ms-day">Day 90</div><div class="ms-title">First Closing</div><div class="ms-desc">Transaction closed; full independence achieved</div></div>
+  </div>
+
+  <div class="phase p1">
+    <div class="phase-header">
+      <span class="phase-badge">Phase 01</span>
+      <span class="phase-name">Foundation</span>
+      <span class="phase-days">Weeks 1-4 &middot; Days 1-30</span>
+    </div>
+    <div class="modules">
+      <div class="mod"><div class="mod-week">Week 1</div><div class="mod-title">Orientation &amp; Identity</div><ul class="mod-list"><li>inhabit. vision, values, and "The Team Way"</li><li>ICA review, commission structure, HR paperwork</li><li>MLS, lockbox, and association setup</li><li>Lofty CRM walkthrough &mdash; contacts, pipeline, tasks</li><li>Email, website, and business card setup</li></ul><div class="mod-deliverable">Deliverable: Signed 30/60/90 Day Plan</div></div>
+      <div class="mod"><div class="mod-week">Week 2</div><div class="mod-title">Mindset &amp; Motivation</div><ul class="mod-list"><li>3-Year Vision Exercise (4-quadrant easel method)</li><li>Personal production goals set and documented</li><li>Time blocking &mdash; the ideal week calendar</li><li>The 5 Cold Hard Truths about building a business</li><li>Database-building: first 200 contacts in CRM</li></ul><div class="mod-deliverable">Deliverable: Database loaded; ideal week template set</div></div>
+      <div class="mod"><div class="mod-week">Week 3</div><div class="mod-title">Scripts &amp; Prospecting</div><ul class="mod-list"><li>Pre-qualifying scripts (new and experienced agents)</li><li>Buyer and seller consultation scripts</li><li>Daily role-play structure (30-60 min/day)</li><li>Objection handling: top 10 real estate objections</li><li>Co-op calls and open house networking</li></ul><div class="mod-deliverable">Deliverable: First role-play evaluation completed</div></div>
+      <div class="mod"><div class="mod-week">Week 4</div><div class="mod-title">Shadow &amp; Observe</div><ul class="mod-list"><li>Shadow mentor on 2 buyer consultations</li><li>Shadow mentor on 1 listing appointment</li><li>Contract walkthrough &mdash; as-is and full contract</li><li>MLS listing entry and compliance training</li><li>First supervised prospecting calls</li></ul><div class="mod-deliverable">Deliverable: 30-Day Review with broker</div></div>
+    </div>
+  </div>
+
+  <div class="phase p2">
+    <div class="phase-header">
+      <span class="phase-badge">Phase 02</span>
+      <span class="phase-name">Activation</span>
+      <span class="phase-days">Weeks 5-8 &middot; Days 31-60</span>
+    </div>
+    <div class="modules">
+      <div class="mod"><div class="mod-week">Weeks 5-6</div><div class="mod-title">Live Appointments</div><ul class="mod-list"><li>First unsupervised buyer consultation</li><li>First listing presentation (with feedback debrief)</li><li>Write first offer &mdash; coach reviews before submission</li><li>Negotiation fundamentals: price, terms, contingencies</li><li>Lofty behavioral lead scoring deep dive</li></ul><div class="mod-deliverable">Deliverable: First live offer written and submitted</div></div>
+      <div class="mod"><div class="mod-week">Weeks 7-8</div><div class="mod-title">Transaction Management</div><ul class="mod-list"><li>Accepted offer to closing &mdash; full transaction walkthrough</li><li>Escrow, title, and lender coordination</li><li>Inspection response strategy and repair negotiation</li><li>Commission Disbursement Authorization (CDA) process</li><li>Client communication cadence during transaction</li></ul><div class="mod-deliverable">Deliverable: 60-Day Review &mdash; pipeline &amp; activity audit</div></div>
+      <div class="mod"><div class="mod-week">Weeks 5-8</div><div class="mod-title">Marketing &amp; Brand</div><ul class="mod-list"><li>Social media content calendar setup</li><li>Listing marketing templates (Lofty + Canva)</li><li>Just Listed / Just Sold campaigns</li><li>Geographic farming basics</li><li>Email drip campaigns from CRM</li></ul><div class="mod-deliverable">Deliverable: First listing assets published</div></div>
+      <div class="mod"><div class="mod-week">Weeks 5-8</div><div class="mod-title">Tech Mastery</div><ul class="mod-list"><li>Lofty AI lead scoring &mdash; prioritizing your pipeline</li><li>Automated follow-up sequences in CRM</li><li>ShowingTime optimization</li><li>DocuSign workflow &mdash; offers through commission</li><li>Market data reporting for clients</li></ul><div class="mod-deliverable">Deliverable: CRM pipeline active with 20+ leads</div></div>
+    </div>
+  </div>
+
+  <div class="phase p3">
+    <div class="phase-header">
+      <span class="phase-badge">Phase 03</span>
+      <span class="phase-name">Independence</span>
+      <span class="phase-days">Weeks 9-12 &middot; Days 61-90</span>
+    </div>
+    <div class="modules">
+      <div class="mod"><div class="mod-week">Weeks 9-10</div><div class="mod-title">Pipeline Mastery</div><ul class="mod-list"><li>Active pipeline management &mdash; warm / active / closing</li><li>Weekly lead review discipline</li><li>Referral system activation (past clients, sphere)</li><li>Open house strategy for lead generation</li><li>Expired and FSBO prospecting (advanced agents)</li></ul><div class="mod-deliverable">Deliverable: Pipeline with 5+ active opportunities</div></div>
+      <div class="mod"><div class="mod-week">Weeks 11-12</div><div class="mod-title">Business Planning</div><ul class="mod-list"><li>Annual production goal setting (units and GCI)</li><li>Reverse-engineering the business math</li><li>Budget planning: marketing, tools, education</li><li>Identifying growth path (solo, team, broker)</li><li>Self-assessment vs. 3-year vision goals</li></ul><div class="mod-deliverable">Deliverable: Written Annual Business Plan submitted</div></div>
+      <div class="mod"><div class="mod-week">Weeks 9-12</div><div class="mod-title">Advanced Skills</div><ul class="mod-list"><li>Price reduction conversation scripts</li><li>Multiple offer strategy for buyers</li><li>Working with investors &mdash; ARV basics</li><li>Relocation and referral network activation</li><li>Commercial real estate fundamentals</li></ul><div class="mod-deliverable">Deliverable: 90-Day Graduate Review with broker</div></div>
+      <div class="mod"><div class="mod-week">Day 90</div><div class="mod-title">Graduation &amp; Path Forward</div><ul class="mod-list"><li>Final 90-day performance review</li><li>Production metrics vs. plan review</li><li>Path confirmed: Solo Agent / Team / Broker</li><li>Ongoing coaching schedule established</li><li>Team presentation: "What I learned in 90 days"</li></ul><div class="mod-deliverable">Deliverable: Official graduation + next path plan</div></div>
+    </div>
+  </div>
+
+  <div class="phase pg">
+    <div class="phase-header">
+      <span class="phase-badge">Ongoing</span>
+      <span class="phase-name">Continuous Development</span>
+      <span class="phase-days">Month 4+</span>
+    </div>
+    <div class="modules">
+      <div class="mod"><div class="mod-week">Enrichment Track</div><div class="mod-title">Advanced Education</div><ul class="mod-list"><li>Quarterly market analysis deep dives</li><li>Designation programs (ABR, SRS, CRS, GRI)</li><li>Brian Buffini / Glover U certified training</li><li>Team leader / brokerage-building track</li><li>Annual NAR Code of Ethics renewal</li></ul></div>
+      <div class="mod"><div class="mod-week">Annual Cycle</div><div class="mod-title">Vision Review</div><ul class="mod-list"><li>Annual 1:1 with broker &mdash; revisit 3-year vision board</li><li>Year-end production debrief</li><li>New annual business plan written</li><li>Career path conversation: stay, grow, lead, or expand</li><li>Retention interview &mdash; what would make next year your best?</li></ul></div>
+    </div>
+  </div>
+
+  <div class="accountability">
+    <div class="acct-eyebrow">Coaching Cadence</div>
+    <div class="acct-title">Accountability Framework</div>
+    <div class="acct-grid">
+      <div class="acct-card"><div class="acct-freq">Daily</div><div class="acct-name">Role-Play Practice</div><div class="acct-desc">30-60 min script work with accountability partner or solo. Sessions logged in CRM.</div></div>
+      <div class="acct-card"><div class="acct-freq">Weekly</div><div class="acct-name">Team Meeting</div><div class="acct-desc">Pipeline review, market update, skill focus topic, wins &amp; losses debrief.</div></div>
+      <div class="acct-card"><div class="acct-freq">Monthly</div><div class="acct-name">1:1 Coaching Call</div><div class="acct-desc">30 min with broker: metrics vs. plan, pipeline review, skill gap identification.</div></div>
+      <div class="acct-card"><div class="acct-freq">Quarterly</div><div class="acct-name">Vision Review</div><div class="acct-desc">Pull out the 3-year vision board. Are current activities aligned with stated goals?</div></div>
+    </div>
+  </div>
+
+  <div class="kpi-section">
+    <div class="kpi-title">Success Metrics by Phase</div>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="kpi-phase">Phase 1 &middot; Days 1-30</div><ul><li>200+ contacts in CRM</li><li>All legal docs signed and filed</li><li>License &amp; MLS transfer confirmed</li><li>5 role-play sessions completed</li><li>First prospecting calls made</li><li>Shadow: 2 buyer + 1 listing appt</li></ul></div>
+      <div class="kpi-card"><div class="kpi-phase">Phase 2 &middot; Days 31-60</div><ul><li>1+ live appointment conducted</li><li>First offer written and submitted</li><li>20+ leads in active CRM pipeline</li><li>Social content published</li><li>CRM fully configured</li><li>Drip sequences active</li></ul></div>
+      <div class="kpi-card"><div class="kpi-phase">Phase 3 &middot; Days 61-90</div><ul><li>5+ opportunities in pipeline</li><li>1 transaction under contract (goal)</li><li>Annual business plan written</li><li>First closing achieved (goal)</li><li>Path forward confirmed</li><li>Referral system activated</li></ul></div>
+    </div>
+  </div>
+
+  <div class="footer-note"><strong>Note for Broker / Manager:</strong> This program should be customized based on each agent's experience level. New licensees (0-18 months) should follow the full program as written. Experienced agents (18+ months) may fast-track Weeks 1-4 but must still complete all legal documentation, a full technology setup, and a tailored 30-day plan. Abbreviated onboarding is never an excuse to skip documentation. Review and update this program annually or whenever major policy, technology, or regulatory changes occur.</div>
+
+</div>
+</body>
+</html>
