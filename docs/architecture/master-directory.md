@@ -51,29 +51,41 @@ The pricing inversion that makes the model work:
 > **Brokers pay the lowest rate. Proptech publishers pay margin.**
 > Brokers earn rev-share on Publisher API consumption of their listings.
 
-## 2 · The four projects on disk
+## 2 · GitHub repo organization (locked 2026-05-10 evening)
 
-> **Logical model only. No physical reorg today** (per the Phase 0 decision). When the move happens, target shape:
+> Three orgs / repos, three roles. Cleaner than the earlier `inhabit-realty/open-source-brokerage` plan because the maintainer org matches the company that builds the framework, and Inhabit becomes a clear first customer.
+
+| GitHub repo | License | Role | Author credit |
+|---|---|---|---|
+| `listing-data/infrastructure` | Proprietary | AWS CDK + ops + LD host control plane | Listing Data |
+| `listing-data/open-source-brokerage` | AGPL-3.0 | The OSB framework — schema, MCP, web admin, **default LD adapter** | Listing Data (LD adapter); Inhabit Realty (all other adapters once added) |
+| `inhabit-realty/brokerage-app` | Proprietary | Inhabit's deployment — brand assets, content, deployment config, customizations | Inhabit Realty |
+
+**Adapter credit split (locked):**
+- LD-RESO + LD-Brokerage adapter ⇒ Listing Data
+- All other adapters (FUB, dotloop, DocuSign, SkySlope, Form Simplicity, Mojo, Matrix, Flexmls, Bridge, MLS Grid, QBO, etc.) ⇒ Inhabit Realty (the working brokerage builds them against real operational needs and contributes upstream)
+
+See `repo_organization.md` memory for full rationale + attribution rules.
+
+**Long-term physical layout** (when the moves happen — deferred for now):
 
 ```
 ~/Desktop/brokerage/                      # parent folder; sibling repos, NOT a monorepo
-├── inhabit/             # this workspace; tenant #1 instance + strategy docs
-├── osb/                 # AGPL-3.0; the open-source brokerage framework
-├── listing-data/        # proprietary; the LD infrastructure + Standard/Publisher API
-├── broker-union/        # proprietary; billing, contracts, rev-share engine (later)
-└── docs/                # cross-cutting architecture (this file moves here)
+├── infrastructure/      # listing-data/infrastructure
+├── open-source-brokerage/  # listing-data/open-source-brokerage (AGPL)
+├── brokerage-app/       # inhabit-realty/brokerage-app (Inhabit's deployment)
+└── docs/                # cross-cutting strategy (this file moves here)
 ```
 
-License boundary is the reason it's a folder-of-repos, not a monorepo: AGPL on OSB cannot mix with proprietary Listing Data / Broker Union code in the same git repo without contamination.
-
-**Today** (2026-05-10) on disk:
+**Today** (2026-05-10) on disk — physical reorg deferred per "foundation stable to build on" directive:
 
 ```
-~/Desktop/Inhabit Realty/                 # workspace root
-├── real-estate-mcp/     → will become osb/
-├── inhabitrealty-com/   → Eleventy marketing site (will fold into OSB tenant)
-└── docs/                ← this file is here
-~/Desktop/Listing Data/                   # sibling project, becomes listing-data/
+~/Desktop/Inhabit Realty/                 # is the inhabit-realty/brokerage-app workspace
+├── real-estate-mcp/     # will become listing-data/open-source-brokerage
+├── inhabitrealty-com/   # Eleventy marketing site, folds into brokerage-app
+└── docs/                # ← this file is here; eventual cross-cutting home is brokerage-level
+~/Desktop/Listing Data/                   # contains the listing-data/* sources
+└── infra/               # will become listing-data/infrastructure
 ```
 
 ## 3 · Dependency hierarchy
