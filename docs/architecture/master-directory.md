@@ -1,8 +1,9 @@
 # Master Directory — Business + Technical Architecture
 
-**Status:** Phase 0 capture · 2026-05-10
-**Audience:** Internal (Inhabit + future LD/Coop employees + the AI assistant in fresh sessions). NOT public; do NOT commit into the OSB AGPL repo. Lives in the Inhabit workspace docs.
-**Source-of-truth:** This file. When prior memory entries conflict with this doc, this doc wins. Older entries (v1_architecture.md, inhabit_app_architecture.md, inhabitrealty_com_isr_plan.md) are superseded.
+**Status:** Broker Union model locked · updated 2026-05-11
+**Audience:** Internal (Broker Union + the AI assistant in fresh sessions). NOT public; do NOT commit into any public repo.
+**Source-of-truth:** This file. When prior memory entries conflict with this doc, this doc wins.
+**Supersedes:** the earlier "Listing Data is the infrastructure company / Real Estate Cooperative is the legal entity / Brokerunion.com is a deferred marketing brand" framing, and the older v1 / PWA / ISR-migration plans. Names retired: **Listing Data**, **listingdata.com**, **Real Estate Cooperative / .coop**, **OSB / Open Source Brokerage** (the core is now proprietary; only the adapter layer is open).
 
 ---
 
@@ -10,223 +11,290 @@
 
 ```
    ┌─────────────────────────────────────────────────────────────┐
-   │  REAL ESTATE COOPERATIVE  (legal entity, .coop TLD)         │
-   │  - signs contracts, receives revenue, pays rev-share        │
-   │  - "Brokerunion.com" is a deferred marketing surface        │
-   │    for the same entity (agent-recruiting brand)             │
+   │  BROKER UNION  —  a private company (owns itself)           │
+   │  wordmark "BROKER UNION."  ·  the intersection of RE & AI    │
+   │  - brokerunion.com — the platform; AWS multi-tenant          │
+   │  - NOT a co-op; rev-share to brokers is contractual          │
+   │  - owns + operates everything below; publishers pay margin   │
    └───────────────────────┬─────────────────────────────────────┘
-                           │ owns
+                           │ runs
                            ▼
    ┌─────────────────────────────────────────────────────────────┐
-   │  LISTING DATA  (proprietary infrastructure company)         │
-   │  - listingdata.com — AWS Fargate · ALB · RDS · multi-tenant │
-   │  - hosts OSB instances on behalf of brokers + enterprise    │
-   │  - operates two API surfaces:                               │
-   │      Standard API   → tenant-internal use (broker tools)    │
-   │      Publisher API  → external re-display (proptech)        │
-   │  - eventually: white-label MLS software for MLS operators   │
+   │  THE PLATFORM  —  private core + three data surfaces        │
+   │  - core: broker-union/platform (proprietary; never public)   │
+   │  - listings  → shared; master copy of every listing + all   │
+   │      listing media/public files; low-security (no PII, no    │
+   │      SOC-2 scope); everyone reads; brokers write their own   │
+   │  - brokerage → per-broker siloed environment: private DB +   │
+   │      private file storage + the broker's deployed instance;  │
+   │      <slug>.brokerunion.com (CNAME-able); broker owns it;    │
+   │      soft-delete only (retained for legal/audit, not public) │
+   │  - traffic   → mandatory reporting from every consumer       │
+   │  - adapters: broker-union/adapters (PUBLIC, AGPL-3.0),       │
+   │      built against broker-union/adapter-sdk (PUBLIC, Apache) │
    └───────────────────────┬─────────────────────────────────────┘
-                           │ runs the framework
+                           │ tenants
                            ▼
    ┌─────────────────────────────────────────────────────────────┐
-   │  OSB / Brokerage MCP  (AGPL-3.0 framework)                  │
-   │  - public repo `inhabit-realty/open-source-brokerage`       │
-   │  - same codebase whether self-hosted or LD-hosted           │
-   │  - LD_HOSTED=1 env flag toggles multi-tenant + metering     │
-   │  - vendor adapters (FUB, dotloop, …) live here              │
-   │  - vendor-skills/ (per-vendor playbooks) live here too      │
-   └───────────────────────┬─────────────────────────────────────┘
-                           │ deployed as a tenant of
-                           ▼
-   ┌─────────────────────────────────────────────────────────────┐
-   │  Inhabit Realty  (Florida brokerage, tenant #1)             │
-   │  - inhabitrealty.com → CNAME → inhabit.listingdata.com      │
-   │  - pays Coop the same broker rate as everyone else          │
-   │  - reference customer + dog-food test                       │
+   │  BROKERS  (tenants on the platform)                         │
+   │  - each gets a siloed environment; <slug>.brokerunion.com   │
+   │    (CNAME-able); run by the broker's own AI                  │
+   │  - pay the lowest rate; earn rev-share on publisher          │
+   │    consumption of their listings; build adapters → Commons   │
+   │  - first brokerage onboarded = the MVP proving ground       │
    └─────────────────────────────────────────────────────────────┘
 ```
 
 The pricing inversion that makes the model work:
 
 > **Brokers pay the lowest rate. Proptech publishers pay margin.**
-> Brokers earn rev-share on Publisher API consumption of their listings.
+> Brokers earn rev-share on publisher consumption of their listings. Brokers (via their AI) also build the vendor adapters, which fertilise the shared Commons.
 
-## 2 · GitHub repo organization (locked 2026-05-10 evening)
+## 2 · GitHub repo organization
 
-> Three orgs / repos, three roles. Cleaner than the earlier `inhabit-realty/open-source-brokerage` plan because the maintainer org matches the company that builds the framework, and Inhabit becomes a clear first customer.
+> Broker Union owns the platform. The boundary is literal: closed substrate, open integrations.
 
-| GitHub repo | License | Role | Author credit |
+| GitHub repo | Visibility / License | Role | Author credit |
 |---|---|---|---|
-| `listing-data/infrastructure` | Proprietary | AWS CDK + ops + LD host control plane | Listing Data |
-| `listing-data/open-source-brokerage` | AGPL-3.0 | The OSB framework — schema, MCP, web admin, **default LD adapter** | Listing Data (LD adapter); Inhabit Realty (all other adapters once added) |
-| `inhabit-realty/brokerage-app` | Proprietary | Inhabit's deployment — brand assets, content, deployment config, customizations | Inhabit Realty |
+| `broker-union/platform` | **Private**, proprietary | The core — multi-tenant control plane, runtime, web admin, billing, the `traffic` engine, environment provisioning. Never public. | Broker Union |
+| `broker-union/adapter-sdk` | **Public**, Apache-2.0 | The seam. Adapter contract: interfaces, base classes, normalized data shapes, lifecycle hooks. Permissive so contributors can build/test adapters without seeing core internals. | Broker Union |
+| `broker-union/adapters` | **Public**, AGPL-3.0 | The Commons. Every vendor adapter — contributed by brokers' AIs, CI-gated, available to all environments. | The brokerage whose environment authored each adapter |
+| `broker-union/mls-edition` | **Private**, proprietary | White-label MLS app — built out from our existing app per MLS operator; AI matches the operator's prior API contract for transparent migration; siloed listings DB per MLS; operator self-governs its members; those listings are the source for the MLS's other vendor integrations. | Broker Union |
+| `broker-union/infra` | **Private** | Infrastructure as code (AWS) — the account / network / data / compute stacks. *Separate* from `platform` deliberately: different blast radius (a bad `cdk apply` takes down everything), different access model (few people should `cdk deploy` prod), keeps `platform` infra-agnostic, and it's shared — it provisions the account that runs `platform` + `mls-edition` + the per-broker `env-<slug>` deployments. Seed: the legacy `~/Desktop/Listing Data/infra/` sources. | Broker Union |
+| `broker-union/env-<slug>` | **Private** (one per broker) | The broker's deployment repo — environment config / brand assets / deploy settings. For a non-technical broker, Broker Union creates and operates it white-glove (the broker never touches it; platform automation / the broker's AI / support-with-a-granted-scope commits to it). A technical broker may keep this in their own GitHub org with Broker Union holding a scoped deploy app instead — strictness confirmed per broker. | the broker |
 
-**Adapter credit split (locked):**
-- LD-RESO + LD-Brokerage adapter ⇒ Listing Data
-- All other adapters (FUB, dotloop, DocuSign, SkySlope, Form Simplicity, Mojo, Matrix, Flexmls, Bridge, MLS Grid, QBO, etc.) ⇒ Inhabit Realty (the working brokerage builds them against real operational needs and contributes upstream)
+**License logic.** Only the adapter *leaves* are copyleft (AGPL-3.0). The core never links AGPL code — it talks to adapters through the public Apache-2.0 SDK contract, so copyleft can't propagate "up" into the private core. The hosted core isn't AGPL, so there's no "network use = distribution" obligation on the platform.
 
-See `repo_organization.md` memory for full rationale + attribution rules.
+**Why per-broker env repos for non-technical brokers.** The "every broker has a deployment repo" pattern is an implementation detail, not something a broker has to operate. For a non-technical broker, Broker Union creates and operates a private `broker-union/env-<slug>` repo; the broker just talks to their AI or the guided wizard. Adapters their AI writes are PR'd to the public `broker-union/adapters` repo by the platform, not by the broker. (Distinction that matters for the access promise: BU *can* see a hosted broker's config repo; BU genuinely cannot read the live `brokerage`-surface *data* — see §4.)
 
-**Long-term physical layout** (when the moves happen — deferred for now):
+**Credit split (locked):** core / SDK / MLS edition ⇒ Broker Union. Every adapter ⇒ the brokerage whose environment authored it. (The first brokerages onboarded are expected to author most of the Tier-0 adapters.)
 
-```
-~/Desktop/brokerage/                      # parent folder; sibling repos, NOT a monorepo
-├── infrastructure/      # listing-data/infrastructure
-├── open-source-brokerage/  # listing-data/open-source-brokerage (AGPL)
-├── brokerage-app/       # inhabit-realty/brokerage-app (Inhabit's deployment)
-└── docs/                # cross-cutting strategy (this file moves here)
-```
-
-**Today** (2026-05-10) on disk — physical reorg deferred per "foundation stable to build on" directive:
-
-```
-~/Desktop/Inhabit Realty/                 # is the inhabit-realty/brokerage-app workspace
-├── real-estate-mcp/     # will become listing-data/open-source-brokerage
-├── inhabitrealty-com/   # Eleventy marketing site, folds into brokerage-app
-└── docs/                # ← this file is here; eventual cross-cutting home is brokerage-level
-~/Desktop/Listing Data/                   # contains the listing-data/* sources
-└── infra/               # will become listing-data/infrastructure
-```
+**On-disk / GitHub today** (2026-05-12): the `~/Desktop/Inhabit Realty/real-estate-mcp/` dir is now **`broker-union/platform`** (private — transferred from `inhabit-realty/open-source-brokerage` and renamed; local remote re-pointed). `broker-union/{adapter-sdk, adapters, infra}` exist as placeholder repos (README + license) — `adapters`/`adapter-sdk` have no code yet (Phase 5+); `infra`'s seed is `~/Desktop/Listing Data/infra/` (still needs pushing). `broker-union/www` is the public site. The homepage/setup mockups under `pages/` will move to a marketing/site repo eventually; these docs need a cross-cutting home. **Heads-up:** the transfer broke the App Runner / Amplify deploy connection (it was wired to `inhabit-realty/open-source-brokerage`) — the AWS GitHub App must be installed/granted on the `broker-union` org and the App Runner service's source re-pointed to `broker-union/platform`.
 
 ## 3 · Dependency hierarchy
 
 ```
-   Inhabit + future brokerage tenants
-        ↓ deploy on
-   Listing Data infrastructure (AWS Fargate · ALB · RDS)
-        ↓ runs
-   OSB framework (AGPL, single codebase, LD_HOSTED=1 flag)
-        ↓ pulls vendor data via
-   Vendor adapters (in OSB) → FUB · dotloop · DocuSign · Form Simplicity · SkySlope · Mojo
-        ↓ documented by
-   Vendor skill files (osb/vendor-skills/, MD + YAML frontmatter)
-        ↓ governed by
-   Real Estate Cooperative (legal entity, billing, rev-share)
+   Broker environments  (the brokerages on the platform)
+        ↓ deploy from / run on
+   Broker Union platform core   (broker-union/platform — private, multi-tenant, AWS)
+        ↓ exposes
+   Three surfaces:  listings · brokerage · traffic
+        ↓ extended by
+   Vendor adapters  (broker-union/adapters — PUBLIC, AGPL-3.0)
+        ↓ built against
+   Adapter SDK  (broker-union/adapter-sdk — PUBLIC, Apache-2.0)
+        ↓ governed + billed by
+   Broker Union  (the private company)
 ```
 
 External money flows:
 
 ```
-   Proptech publishers   ──$──>  Coop  ──$──>  Brokers (rev-share on their listings)
-                                   │
-                                   └──$──>  LD infra cost + Coop margin
-   Brokers + enterprise  ──$──>  Coop  (lowest rate; covers hosting + Standard API + bucket of calls)
+   Proptech publishers  ──$──>  Broker Union  ──$──>  Brokers (rev-share on their listings)
+                                       │
+                                       └──$──>  AWS infra cost + Broker Union margin
+   Brokers + enterprise + MLS operators ──$──>  Broker Union
+        (brokers: lowest rate — hosting + listings access + a bucket of calls;
+         enterprise: broker rate × members, + optional bulk-pay of member fees;
+         MLS operators: white-label MLS-edition build + siloed-DB hosting)
 ```
 
-## 4 · Tenant model
+## 4 · Tenant / surface model
 
-Two tiers, both supported on the same LD codebase:
+The platform is **three data surfaces** with different isolation/security postures, plus four participant types holding different combinations.
 
-| Tier | DB isolation | URL | Use case |
+### The three surfaces
+
+| Surface | Holds | Isolation | Security |
 |---|---|---|---|
-| **Shared** (default broker) | Row-level w/ `tenant_id` on every table | `<slug>.listingdata.com` + optional CNAME | Solo brokers, small offices |
-| **Enterprise / Franchise** | Schema-per-tenant (`brokerage_<slug>`) | Same URL pattern + dedicated cluster option later | Multi-office franchises, regional SLAs |
+| **`listings`** | Master copy of every listing ever created + all listing media & public files (photos, `floorplan.pdf`, virtual tours) | Shared single store; canonical copy regardless of creator | Low — public data. **No PII, no SOC-2 scope on this surface.** |
+| **`brokerage`** | Each broker's private operational data (agents, deals, leads, CRM links, transactions) + uploaded company docs/images + the broker's deployed instance + deploy config | Hard per-broker isolation: siloed DB + siloed file storage + own subdomain | High. Broker **owns it entirely**. Soft-delete only — retained for legal/audit, removed from public/active. **Support can see environment code/config (for stability); broker *data* requires the broker's permission — granted by default, broker can opt out.** |
+| **`traffic`** | Page-view / impression telemetry on listings & creatives, reported by every consumer | Per-reporter, aggregated centrally for metering + rev-share | Operational telemetry. **Reporting is mandatory** for brokers, enterprises, MLS operators, publishers. |
 
-**Lock now (even though enterprise tier ships later):**
+> Open mechanic: whether `brokerage` isolation is schema-per-broker in a shared cluster + dedicated file bucket/prefix, or a fully dedicated DB per broker — decide when the first hosted broker lands. `tenant_id` on every row regardless (see below).
 
-- Every row in every table includes `tenant_id` from day one. Shared-tier rows partition by it; enterprise-tier rows redundantly carry it (cheap; lets schema-per-tenant data flow back into multi-tenant analytics if needed).
-- Postgres RLS policies as belt-and-suspenders on the shared tier so a missed `WHERE tenant_id` in code can't leak data.
+### Listing write rules (`listings` surface)
 
-The **federation question** — "can a franchise have its own cluster with listings still queryable by others?" — is a yes-but-not-now. Logical replication or Postgres FDW solves it when the first enterprise asks. The `tenant_id` rule is what keeps that path open.
+1. Everyone with a surface reads all listings.
+2. A broker creates/updates **their own** listings — via their platform UI/AI *or* by editing the listing DB directly.
+3. A broker may **delete their own** listing **only while pre-active**; once active or past it, retained.
+4. Listings created by Broker Union itself carry a **`BU` prefix** on the identifier.
+5. Public-listings policy (carried forward): a broker's public web surfaces show only listings that broker represented (list-side OR buyer-side); buyer-side renders with `noindex` and no canonical. MLS-feed-only listings are reachable via authenticated MCP only.
+
+### Participant types
+
+| Participant | `listings` | `brokerage` | `traffic` | Notes |
+|---|---|---|---|---|
+| **Broker** | Read all; CRUD own (delete own pre-active only) | Full CRUD on own siloed surface; exclusive ownership | Must report | On join: brokerage surface provisioned + platform instance deployed from it. Pays the lowest rate; earns rev-share on publisher consumption of their listings. |
+| **Enterprise / franchise** | Read all + affiliated listings across its network | — (no surface of its own) | Must report; sees network traffic (its agents + affiliated listings) | **Can pay member brokerages' fees in bulk** → that grants the enterprise access into those participating brokers' brokerage surfaces. |
+| **MLS operator** | Siloed listings DB (no PII security); these listings are the source for the MLS's other vendor integrations | — | Must report | Runs the white-label MLS edition (`broker-union/mls-edition`); **self-governs its own members.** |
+| **Publisher** (proptech) | Read-only consumer view | — | Must report | Per-page-view metered; sold-data is a higher tier (see §9). |
+
+### Setup / provisioning flow (per broker)
+
+1. **Connect your AI** — "Sign in with Claude" (one click, OAuth-style) issues a token scoped to this environment only — same data reach as the web admin, revocable anytime. No AI? Use the **guided wizard** — a conversational assistant that does the same work; connect an AI later. (Advanced: paste an MCP config for any MCP client.)
+2. **Create environment** — brokerage name → `<slug>.brokerunion.com` → region; accept the **Contributor Agreement** here (adapters authored in this environment → AGPL-3.0 Commons, credited to this brokerage).
+3. **Provision** — private DB schema, private file storage, subdomain, platform instance, scoped token. ~1 minute.
+4. **Configure** — brand, vendor connections (FUB OAuth first), listings import, agent roster — driven by the broker's AI (chat) or the guided wizard (chat). Same outcome either way.
+5. **Adapter studio** — when a broker uses a vendor not yet in the Commons, their AI scaffolds an adapter against the public SDK, tests it in the environment, contributes it back (AGPL, credited). Optional.
+6. **Go live** — CNAME the broker's own domain; auto-TLS; publish. Thereafter the AI is the broker's day-to-day operator.
+
+### Lock now (carries forward)
+
+- `tenant_id` on every row in every table, day one — keeps the multi-cluster federation path open at zero cost.
+- Postgres RLS as belt-and-suspenders on shared surfaces.
+- Federation across regional clusters = yes-but-not-now (logical replication / FDW when the first enterprise asks).
+- SOC 2 controls baked in from MVP, formal Type II in ~9–12 months — **except** the `listings` surface, which is explicitly out of PII/SOC scope (public data only).
 
 ## 5 · MVP scope
 
-> **MVP success criterion:** Inhabit Realty migrated to LD host, zero downtime, observability stack proven.
+> **MVP success criterion:** the Broker Union platform core stands up on AWS, and the first brokerage is onboarded end-to-end through the setup flow (connect AI → create environment → configure → go live) — zero-downtime expectations met for any data migrated in, observability proven, per-tenant cost model measured.
 
 **In scope:**
-
-- LD infrastructure on AWS (Fargate + ALB + RDS, multi-AZ for SOC 2)
-- OSB code with `LD_HOSTED=1` runtime flag — multi-tenant routing, central auth, audit logging
-- Inhabit migrated as tenant #1 (subdomain default + `inhabitrealty.com` CNAME)
-- Observability: CloudWatch + structured app logs + audit trail
-- Zero-downtime cutover plan (DB replication or blue/green)
+- Broker Union platform core on AWS (multi-tenant routing, central auth — `accounts.brokerunion.com` as the identity provider, see §7 — audit logging, multi-AZ).
+- The provisioning flow: create environment → private DB schema + private file storage + subdomain + scoped token.
+- One brokerage onboarded as tenant #1 — brand, at least one vendor connection, listings, agents, go-live.
+- Observability: CloudWatch + structured app logs + audit trail.
+- Zero-downtime expectations for any data migrated in.
 
 **Out of scope for MVP:**
-
-- Vendor adapters (FUB, dotloop, etc.) — Phase 5
-- Self-serve signup at signup.listingdata.com — Phase 6
-- Publisher API + IP allowlist — Phase 6
-- Rev-share engine — Phase 6
-- White-label MLS software for MLS operators — Phase 7
-- Brokerunion.com brand — deferred until 5–10 brokers sound out the framing
+- Multi-broker self-serve onboarding + the polished chatbot setup flow — later.
+- Vendor adapters (FUB, dotloop, …) — Phase 5.
+- Publisher API + page-view metering + rev-share engine — later phase.
+- MLS edition — later phase.
+- `traffic` reporting enforcement across third parties — later phase.
 
 ## 6 · Phased plan
 
 ```
-Phase 0   ✏️  Capture & lock the model in writing      (this file + memory)
-Phase 1   🛠️  OSB schema readiness                     (tenant_id everywhere, LD_HOSTED flag)
-Phase 2   ☁️  LD infra scaffolding                     (Terraform/CDK, Fargate/ALB/RDS)
-Phase 3   🚀  Inhabit migration to LD host              (the MVP — zero-downtime cutover)
-Phase 4   📚  Vendor skill files                        (convert OSB matrix → MD per vendor)
-Phase 5   🔌  Tier-0 adapters                           (FUB → dotloop → DocuSign → FS → SkySlope → Mojo)
-Phase 6   💳  Self-serve signup + Publisher API         (signup.listingdata.com + Stripe + rev-share)
-Phase 7   🏛️  MLS-as-customer (white-label MLS)         (long-term)
+Phase 0   ✏️  Lock the model in writing                  (this file + memory)
+Phase 1   🛠️  Platform schema readiness                  (tenant_id everywhere; surface boundaries; provisioning)
+Phase 2   ☁️  Broker Union infra scaffolding             (Terraform/CDK; AWS multi-tenant)
+Phase 3   🚀  First brokerage onboarded end-to-end       (the MVP — provisioning → configure → go-live + cost analysis)
+Phase 4   📚  Vendor skill files                          (per-vendor MD playbooks)
+Phase 5   🔌  Tier-0 adapters                             (FUB → dotloop → DocuSign → Form Simplicity → SkySlope → Mojo)
+Phase 6   💳  Self-serve onboarding + chatbot setup       (brokerunion.com signup + Stripe)
+Phase 7   📈  Publisher API + traffic metering + rev-share
+Phase 8   🏛️  MLS edition (white-label MLS app)
 
 Parallel from now:
    · SOC 2 controls baked in from day one (formal Type II ~9–12 mo)
-   · Form Simplicity partner credential outreach (4–8 wk lead time, blocks Phase 5 step 4)
-   · realestate.coop reservation (~$150, time-sensitive)
+   · Form Simplicity partner-credential outreach (4–8 wk lead time, blocks Phase 5 step 4)
 ```
 
 ## 7 · Locked technical decisions
 
 | Decision | Choice | Rationale |
 |---|---|---|
-| Hosting platform | AWS Fargate + ALB host-based routing + RDS multi-AZ | LD's purpose is to *run infra*, not be a SaaS. Cleanest path to enterprise dedicated clusters later. |
-| Code unification | Single OSB codebase, `LD_HOSTED=1` runtime flag | One repo, one truth. Self-host and LD-host diverge only in env, not in code. |
-| Tenant DB (shared) | Row-level w/ `tenant_id` + RLS | Cheapest at small scale; RLS is the safety net. |
-| Tenant DB (enterprise) | Schema-per-tenant (`brokerage_<slug>`) | Logical isolation as upsell feature; clean extraction to dedicated cluster later. |
-| Tenant URL | `<slug>.listingdata.com` default + CNAME for owned domains | Standard SaaS pattern; works on Vercel and AWS the same way. |
-| Tenant_id everywhere | Yes, every table, day one | Keeps the multi-cluster federation path open at zero cost. |
-| Publisher API auth | API key + IP allowlist | Simple, audit-friendly. OAuth path documented for v2. |
-| Compliance | SOC 2 controls baked in from MVP, formal Type II in 9–12 mo | Required for first proptech publisher contract; retrofitting is more expensive than building in. |
-| Vendor adapter home | `osb/packages/adapters/` (in AGPL repo) | Brokerages get adapters via fork. Ingest is broker→LD via push, not LD→vendor pull. |
-| Vendor skills home | `osb/vendor-skills/` (also AGPL) | Public knowledge. Ships with the framework. Distributes the playbook. |
-| MLS feed ingest | NO — broker-contributed only | Cleanest legal posture. Brokers syndicate listings they represented (list-side); no MLS contract complexity. |
+| Company / ownership | Broker Union — a private company — owns + operates the platform | Not a co-op. Rev-share to brokers survives as a contractual mechanic, not member governance. |
+| Hosting | AWS multi-tenant (Fargate/ALB/RDS class), multi-AZ | Cleanest path to enterprise dedicated clusters later. Where `brokerunion.com` itself is hosted = open item. |
+| Core vs adapters | `broker-union/platform` private + proprietary; `broker-union/adapters` public + AGPL-3.0; `broker-union/adapter-sdk` public + Apache-2.0 (the seam) | Closed substrate, open integrations. Copyleft stays at the leaves; the core never links AGPL code, so it stays private. Consequence: the full platform is **not** self-hostable — brokers run it on Broker Union; the adapter layer is forkable. |
+| Three surfaces | `listings` (shared, low-security, master copy of all listings + media), `brokerage` (per-broker siloed env: DB + file storage + the broker's deployed instance, `<slug>.brokerunion.com`, CNAME-able), `traffic` (mandatory reporting from all consumers) | One platform, three isolation/security postures. Full detail §4 + §9. |
+| `listings` security | Public data only; **no PII, no SOC-2 scope on this surface** | The commodity layer that compounds; keep it cheap and open. |
+| `brokerage` ownership + deletes | Broker owns it entirely; soft-delete only (retained for legal/audit, removed from public/active) | Broker trust + legal defensibility. |
+| Listing writes | Everyone reads all listings; brokers create/update their own (platform UI/AI or direct DB edit); delete own only pre-active; Broker-Union-created listings get a `BU` ID prefix | Keeps the listings commons coherent while giving brokers real control over their own. |
+| Platform authentication / SSO | Broker Union is the **identity provider**. `accounts.brokerunion.com` is the only place a password is entered or stored (argon2id, MFA/TOTP, email verification, reset). Every broker instance — `<slug>.brokerunion.com`, every `mls-edition` deployment, every `env-<slug>` — is an OIDC relying party: no session → redirect to `accounts.` for login → receive a short-lived BU-signed token (RS256, verified against BU's published JWKS) → confirm `tenant_id` matches the subdomain → mint an instance-local, subdomain-scoped session. Backed by a global `identities` table (email + `password_hash` + `mfa_secret`, no `tenant_id`, lives in `public`) and `memberships(identity_id, tenant_id, role, status)` — which instances a given login can enter and as what (the "store picker" when there's more than one). The per-instance `users` table becomes a profile/agent projection keyed by `identity_id + tenant_id`; it never holds a credential. Same shape as Shopify's `accounts.shopify.com → <store>.myshopify.com/admin`. The current per-instance Auth.js (NextAuth v5) layer stays as the *instance-side* session layer — fed by the OIDC handoff instead of being an identity source (magic-link provider → OIDC-client/Credentials provider). The `accounts.` service lives in `broker-union/platform` (the control plane). | One credential store, everywhere. A fully compromised broker instance still can't mint a session for any other instance or read a credential — it only ever holds tenant-scoped, short-lived, BU-signed tokens it verifies against BU's public JWKS. Gives "log in once, switch instances," and lets support assist a broker without touching their data. Where `accounts.brokerunion.com` itself is hosted = part of the `brokerunion.com` hosting open item (§11). |
+| External-app SSO / launcher (outbound) | Broker Union acts as the IdP for the broker's external vendors — **outbound only; BU does not consume third-party IdPs**. Per-tenant `external_apps` config (label, icon, protocol [SAML 2.0 IdP-initiated / OIDC / OAuth-redirect / plain link], SP metadata, attribute map, role visibility, sort order) renders as an "Apps" launcher section in the instance nav; a click mints a short-lived signed assertion/token at `accounts.brokerunion.com/sso/launch/:appId` — role-gated, audience-restricted, audit-logged — and drops the user logged-in in the vendor. `external_identity_map(identity_id, app_id, external_user_id)` handles vendor-specific user IDs + JIT provisioning. Vendor adapters (`broker-union/adapters`) may ship an optional SSO descriptor (the vendor's SAML/OIDC metadata) via the `adapter-sdk`, so "add SkySlope to my menu" is an AI-driven catalog pick, not a hand-entered ACS URL. Reuses the `accounts.` service. | **Business rationale — deeper broker commitment:** when Broker Union is the broker's daily launchpad into all their tools, it's the identity hub, not just another app; raises switching cost and embeds the platform in the broker's workflow. |
+| Connect-AI / MCP | "Sign in with Claude" (OAuth-style) → scoped token = the brokerage-surface credential, RLS-bound to that tenant (issued by the instance once the BU SSO session is established); advanced path = paste an MCP config for any MCP client | Broker's AI has identical data scope to their web admin. No separate MCP credential model. One-click for non-technical brokers. |
+| Non-AI path | A **conversational guided wizard** (a Broker Union setup assistant) does brand → vendors → listings → agents by chat; connect an AI later | Same outcome as the AI path; keeps it simple for non-technical brokers. The entire setup UX is chat — no multi-pane stepper. |
+| Setup order | Connect AI **first**, then create environment → provision → configure → adapter studio → go live | The AI does the creating. |
+| Support access | Environment **code/config** always visible to support (stability); broker **data** requires the broker's permission — **granted by default, broker can opt out** | Support stays unblocked; data access stays broker-controlled + auditable. |
+| Internal CRM | HubSpot | Broker Union's own CRM for brokers/leads/support — distinct from the `brokerage`-surface CRM data brokers own. |
+| Transactional email | **Amazon SES** (behind the `packages/email` interface, swappable) | AWS-native — IAM-scoped, bounces/complaints via SNS → straight into observability, cheapest at scale (~$0.10/1k), scales to millions/day, managed DKIM/SPF/DMARC. Carries password reset, email verification, MFA codes, broker invites, support, notifications. Sandbox→production-access is a one-time request. SMTP-compatible so the swap from the current Nodemailer/SMTP transport is near drop-in. Resend / Postmark were the alternatives — rejected as non-AWS-native + extra vendor/secret. |
+| MLS edition | Built out from our existing app per operator; AI matches the operator's prior API contract for transparent migration; siloed listings DB per MLS; operator self-governs members; those listings feed the MLS's other vendors | One product, per-tenant config. The operator's existing endpoints define the compatibility target (typically RESO Web API). |
+| Adapter home | `broker-union/adapters` (public, AGPL). Ingest is broker→platform via push (transform vendor data → normalized schema), not platform→vendor pull | The work compounds in the Commons; credited to the authoring brokerage. |
+| Vendor skill files | Per-vendor MD playbooks (frontmatter + capabilities + gotchas + troubleshooting context), shipped alongside adapters | Public knowledge; standing rule on inline AI troubleshooting context applies. |
+| MLS feed ingest | NO — broker-contributed listings only | Cleanest legal posture; no MLS-contract complexity in the core. |
+| `tenant_id` everywhere | Yes, every table, day one | Keeps the multi-cluster federation path open at zero cost. |
+| Canonical-URL rule | *(pending re-confirm)* `listings` responses include `canonical_url`; broker display contracts require linking to it unless that listing is upgraded to publisher tier | SEO equity consolidates on the canonical by default; publisher upgrade lets a broker own it. Carried from the pre-pivot model; not re-confirmed in the Broker Union pass. |
+| Compliance | SOC 2 controls from MVP, formal Type II ~9–12 mo (excludes `listings`) | Required for the first proptech publisher contract. |
 
 ## 8 · Locked business decisions
 
 | Decision | Choice | Rationale |
 |---|---|---|
-| Legal entity | **Real Estate Cooperative** (.coop TLD) | Cooperative is the accurate legal model — rev-share to contributing brokers + member governance. The .coop TLD requires verification, which lends instant credibility. |
-| Marketing brand (deferred) | **Brokerunion.com** | Provocative, agent-frustrated, NAR friction is a feature for that audience. Not committing $4k until 5–10 brokers respond to the framing. |
-| Domain spend now | Reserve `realestate.coop` (~$150) | Time-sensitive (good co-op names get registered). Defer brokerunion.com until tested. |
-| Inhabit's role | Just-another-tenant. Same rate card. No special access. | Reference customer + dog-food test. If it doesn't work for Inhabit it doesn't work. Avoids competitor narrative that Inhabit "sees more." |
-| Pricing model | Brokers: $100 + margin for shared DB + bucket of API calls. Enterprise: dedicated instance with listings shared. Margin TBD when call volume measured. | Inversion of industry norm: brokers pay least, publishers pay most. |
-| Syndication payout | Rev-share on Publisher API consumption only (not Standard) | Aligns broker incentives toward contributing data; keeps Standard API simple. |
-| Public listings policy | (Existing rule, unchanged) Show only listings broker represented (list-side OR buyer-side; buyer-side gets `noindex`). MLS-feed-only via authenticated MCP only. | Carries over from v1 architecture. |
+| Entity | **Broker Union** — a private company; owns and operates the platform. Not a co-op. | Replaces the Real Estate Cooperative / .coop model. "The intersection of real estate & AI." Rev-share to brokers survives as a contractual mechanic. |
+| Brand wordmark | **BROKER UNION.** (the trailing period is the accent colour) | Lockup-level treatment; in prose this doc writes "Broker Union." |
+| Domain | `brokerunion.com` — the platform and the public face. `listingdata.com` retired. | One brand, one domain. |
+| Pricing inversion | Brokers pay the lowest rate; publishers pay margin | Inverts the industry norm. Brokers also do the adapter-building work, which benefits the whole network. |
+| Broker pricing | ~$100-class base + margin: siloed brokerage surface + hosting + listings access + a bucket of calls. Margin/bucket sized when call-volume data exists. | Lowest rate on the platform. |
+| Enterprise pricing | Broker rate × members, + optional bulk-pay of member fees in exchange for surface access across participating brokers | |
+| MLS-operator pricing | White-label MLS-edition build fee + hosting of the operator's siloed listings DB. Flat-fee-per-operator vs per-listing-volume = open item. | |
+| Publisher pricing | Per-page-view metered (any listing or creative — photo, video, virtual tour, listing-card embed). **Sold (closed-transaction) data = higher tier than active-only.** Brackets TBD at first publisher contract. | Sold data drives analytics/comps/market reports. |
+| Rev-share | Brokers earn rev-share on publisher consumption of *their* listings (contractual, not co-op governance) | Aligns broker incentives toward contributing data. |
+| Tenant #1 | The first brokerage onboarded is the proving ground — same rate card as everyone, no special access, no extra data reach | If it doesn't work end-to-end for the first real brokerage, it doesn't ship. |
+| Public listings policy | Show only listings the broker represented (list-side OR buyer-side; buyer-side gets `noindex` + no canonical). MLS-feed-only via authenticated MCP only. | Carried forward. |
 
-## 9 · Tier-0 vendor adapters
+## 9 · Surfaces, access & pricing
+
+> Reframed 2026-05-11 from "three API tiers" to "three surfaces + participant access." The pre-pivot RESO/Brokerage/Publisher API names were endpoint shapes; the surfaces are `listings`, `brokerage`, `traffic`. The MLS edition's API contract is whatever the operator already runs (typically RESO Web API).
+
+**The three surfaces** — full isolation/security table in §4:
+- **`listings`** — shared master copy of all listings + media + public files; low-security (no PII/SOC); everyone reads; brokers write their own (platform UI/AI or direct DB edit), delete own pre-active only; Broker-Union-created listings get a `BU` prefix.
+- **`brokerage`** — per-broker siloed; broker owns; soft-delete; the broker's deployed instance lives here; siloed company-file storage; `<slug>.brokerunion.com` + CNAME. Support sees code/config; broker data is opt-out (granted by default).
+- **`traffic`** — mandatory reporting from brokers, enterprises, MLS operators, publishers.
+
+**Who gets what:**
+
+| Participant | listings | brokerage | traffic |
+|---|---|---|---|
+| Broker | Read all; CRUD own (delete own pre-active only) | Own siloed surface, full CRUD, exclusive ownership | Reports |
+| Enterprise | Read all + affiliated network | — (can buy into member brokers' surfaces by paying their fees) | Reports; sees network traffic |
+| MLS operator | Siloed listings DB; source for the MLS's other vendors | — | Reports |
+| Publisher | Read-only consumer view | — | Reports |
+
+**MCP authentication.** "Sign in with Claude" issues a token = the broker's brokerage-surface credential, RLS-bound to that tenant; reads and writes are tenant-scoped automatically. The broker's AI assistant therefore has the same data scope as the broker's web admin. No separate MCP credential model.
+
+**MLS-edition upgrade path.** A broker operating under an MLS-edition deployment can upgrade their tenant to add an AI assistant + the non-RESO platform capabilities. Natural upsell: MLS operator deploys our MLS edition → member brokers individually upgrade.
+
+**Canonical-URL rule (broker-side, pending re-confirmation).** A broker displaying a listing must link to the listing's `canonical_url` unless they upgrade that listing to publisher tier and own the canonical. Carried from the pre-pivot model; not re-confirmed.
+
+**Publisher billing.** Per page view of any listing or creative. Each impression = a metered call. Bulk brackets at first publisher contract.
+
+**Sold-data tier.** Active listings = base publisher access; sold (closed transactions) = higher tier.
+
+**Open items (also §11):** publisher page-view brackets · sold-data tier name + multiplier · MLS-edition pricing model · canonical-URL keep-or-drop + enforcement mechanism · `brokerage`-surface isolation mechanics · where `brokerunion.com` is hosted.
+
+## 10 · Tier-0 vendor adapters
+
+All Tier-0 adapters write into the broker's environment via the `brokerage` write path; they consume external vendor APIs, transform vendor data into the normalized schema, and push it in. They're built against the public Apache-2.0 SDK and contributed to the public AGPL-3.0 Commons, credited to the authoring brokerage. No adapter touches the `listings` or `traffic` surfaces directly.
 
 Build order (post-MVP, Phase 5):
 
-1. **Follow Up Boss** — best-documented API, Inhabit's active CRM, lowest risk to start.
-2. **dotloop** — public GitHub API + webhooks; Zillow-owned (data-flow caveat noted).
+1. **Follow Up Boss** — best-documented API, lowest risk to start.
+2. **dotloop** — public API + webhooks; Zillow-owned (data-flow caveat noted).
 3. **DocuSign Rooms** — NAR official, SDKs in 6 languages. Forms API requires account-manager approval (4–8 wk lead).
-4. **Form Simplicity** — *blocked on partner credentials*. Florida Realtors-operated, "internal use only." **Open the credential ask now (parallel work) so the build slot isn't dead time.**
+4. **Form Simplicity** — *blocked on partner credentials* (Florida Realtors-operated, "internal use only"). Open the credential ask now so the build slot isn't dead time.
 5. **SkySlope** — license agreement required (not self-serve). Strong enterprise compliance + AI Smart Audit.
-6. **Mojo** — *unusual API shape*. Posting PIN model means the adapter is a sync subscriber, not a typical REST client. Recommended pipeline per OSB matrix: Vulcan7/REDX → Mojo (Posting PIN) → API Nation → GHL. The OSB adapter consumes the same Posting PIN feed.
+6. **Mojo** — *unusual API shape*. Posting-PIN model → the adapter is a sync subscriber, not a typical REST client. Pipeline per the OSB matrix: Vulcan7/REDX → Mojo (Posting PIN) → API Nation → GHL; the adapter consumes the same Posting-PIN feed.
 
-Each adapter ships with a corresponding `osb/vendor-skills/<vendor>.md` playbook (frontmatter + capabilities + gotchas + troubleshooting context, per the standing rule on inline AI troubleshooting).
+Each adapter ships with a `<vendor>.md` vendor-skill playbook (frontmatter + capabilities + gotchas + troubleshooting context).
 
-## 10 · Open items / parking lot
+## 11 · Open items / parking lot
 
-- **Pricing model precision** — $100 base + margin + bucket-of-calls. Margin and bucket size depend on call-volume data we don't have yet. Re-decide after MVP load testing.
-- **Broker Union brand validation** — defer until 5–10 brokers weigh in.
-- **Federation across regional clusters** — design freeze deferred; keep `tenant_id` rule.
-- **MLS-as-customer (Phase 7)** — white-label MLS software offering. Match RESO Web API contract. Compete at the Bridge/Trestle/Spark layer. Long-term, not on the MVP path.
-- **Form Simplicity credentials** — start the conversation now (Florida Realtors partner program).
+- **`brokerunion.com` hosting** — where is the domain / where do we deploy the public site? (Likely Vercel for the marketing/coming-soon page; platform core + `accounts.brokerunion.com` on AWS.)
+- **`accounts.brokerunion.com` build** — hand-rolled OIDC provider on the control plane vs. a thin OSS OIDC server embedded in `broker-union/platform`. Either way the *protocol* (OIDC + JWKS) is the contract every instance plugs into. MVP-scope (the "central auth" line in §5).
+- **`brokerage`-surface isolation mechanics** — schema-per-broker + dedicated file bucket, or fully dedicated DB per broker.
+- **Hosted-broker access tier** — BU hosts non-technical brokers' `env-<slug>` repos; confirm the strictness (BU-as-host vs. BU-product-team).
+- **Publisher pricing brackets** — per 1k / per 10k page views; bulk curves.
+- **Sold-data tier** — name + price multiplier vs active-only.
+- **MLS-edition pricing** — flat-fee per operator vs per-listing-volume.
+- **Canonical-URL rule** — keep it? enforcement mechanism (response header / contract clause / both)?
+- **Self-hosting** — confirmed dropped for the core (proprietary); only adapters are forkable. Note in case it resurfaces.
+- **Federation across regional clusters** — design freeze deferred; keep the `tenant_id` rule.
 - **Compliance** — SOC 2 vendor selection (Vanta / Drata / Secureframe). Pick after Phase 2 infra is up.
-- **AI improvement loop** — autonomous Claude/GPT/etc. work on the OSB framework during idle-compute windows, PRs-only with CI gates, funded by Publisher API margin; aligns with the cooperative model ("while you sleep, the cooperative builds"). Detail + safety rules in memory `ai_improvement_loop.md`. Trigger to pick up: post-MVP + 5+ brokers + a single first-use-case (suggested: auto-generate `osb/vendor-skills/*.md` from the OSB matrix as the proof-of-concept).
-- **Marketing direction** — *"intentional architecture for the next gen of real estate"*. Positions the platform opposite incumbents (BoldTrail/kvCORE/Lofty = features-bolted-on-legacy-plumbing). Word **intentional** does the most work; quiet rebuke to industry's accidental tech sprawl. Captured 2026-05-10 conversation; not yet committed to brand assets.
+- **AI improvement loop** — autonomous AI works the public adapter Commons during idle-compute windows, PRs-only with CI gates, funded by publisher margin. Detail + safety rules in memory `ai_improvement_loop.md`. Trigger: post-MVP + 5+ brokers + a single first use-case (suggested: auto-generate `<vendor>.md` skill files).
+- **Marketing direction** — "the intersection of real estate & AI"; "AI-operated brokerage platform"; positions opposite incumbents (BoldTrail/kvCORE/Lofty = features bolted onto legacy plumbing). Not yet committed to brand assets beyond the homepage mockup.
 
-## 11 · For the next AI session
+## 12 · For the next AI session
 
 When you read this file in a fresh conversation:
 
-1. The **business model** in §1 is the operating thesis. Don't redesign it.
-2. The **technical decisions** in §7 are locked unless explicitly revisited.
-3. The **MVP scope** in §5 is what we're actively building. Anything else is later-phase.
-4. **`tenant_id` on every row** is the single most important schema rule. Enforce it on every new table.
-5. The **vendor skill files** rule (inline AI troubleshooting context) applies to every new adapter / route / service. Same standing rule from feedback memory.
-6. When in doubt about prioritization, ask. The user is iterating fast and welcomes 3–4 targeted questions per round.
+1. **Broker Union is the company.** §1 is the operating thesis — don't redesign it. "Listing Data", "listingdata.com", the co-op, "OSB/Open Source Brokerage", and the old "brokerage PWA workspace" framing are all retired.
+2. **§7 + §8 are locked** unless explicitly revisited. Items marked *pending* or in §11 are genuinely open — ask before assuming.
+3. **MVP = §5**: the platform stands up + the first brokerage is onboarded end-to-end, zero-downtime, observability + cost model proven. Everything else is later-phase.
+4. **`tenant_id` on every row** is the single most important schema rule. Enforce it on every new table. The `listings` surface carries no PII and is out of SOC-2 scope; the `brokerage` surface is the high-security one.
+5. **The setup UX is chat** — "Sign in with Claude" first, or a conversational guided wizard. No multi-pane stepper.
+6. **Vendor skill files** rule (inline AI troubleshooting context) applies to every new adapter / route / service.
+7. **Mockups** live in `pages/brokerunion-home.html` and `pages/brokerunion-setup.html` — design references, not production.
+8. When in doubt about prioritization, ask. The user iterates fast; show your work before changing things he's already seen.
